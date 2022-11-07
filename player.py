@@ -4,7 +4,7 @@ from settings import *
 # pygame Sprite 클래스 상속
 class Player(pygame.sprite.Sprite):
     # 생성자
-    def __init__(self, pos, groups) -> None:
+    def __init__(self, pos: tuple, groups: list, obstacle_sprites: pygame.sprite.Group()) -> None:
         # 부모 클래스의 생성자를 먼저 로드
         super().__init__(groups)
         
@@ -14,3 +14,68 @@ class Player(pygame.sprite.Sprite):
 
         # .get_rect 이미지의 직사각형 영역을 가져옴
         self.rect = self.image.get_rect(topleft = pos)
+
+        # 벡터
+        # default [ x : 0 -> 1 * speed (이동속도) ] 
+        #         [ y : 0 -> 1 * speed (이동속도) ]
+        self.direction = pygame.math.Vector2()
+
+        self.speed = 5
+
+        # 장애물 받아오기
+        self.obstacle_sprites = obstacle_sprites
+
+    # 키보드 입력 받기
+    def input(self):
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_UP]:
+            self.direction.y = -1
+        elif keys[pygame.K_DOWN]:
+            self.direction.y = 1
+        else:
+            self.direction.y = 0
+
+        if keys[pygame.K_RIGHT]:
+            self.direction.x = 1
+        elif keys[pygame.K_LEFT]:
+            self.direction.x = -1
+        else:
+            self.direction.x = 0
+
+    def move(self, speed: int) -> None:
+        if self.direction.magnitude() != 0: # magitude : 벡터의 크기
+            self.direction = self.direction.normalize()
+
+            # self.direction += self.direction.x * speed
+            # self.collision('horizontal')
+            # self.rect.y += self.direction.y * speed
+            # self.collision('vertical')
+        self.rect.x += self.direction.x * speed
+        self.collision('horizontal')
+        self.rect.y += self.direction.y * speed
+        self.collision('vertical')
+        # self.rect.center += self.direction * speed # 정규화가 필요함, 벡터의 길이를 1로 만드는 것
+
+    def collision(self, direction: pygame.math.Vector2) -> None:
+        # 수평 : 위아래로 걸을 때
+        if direction == 'horizontal':
+            for sprite in self.obstacle_sprites:
+                if sprite.rect.colliderect(self.rect):
+                    if self.direction.x > 0: # 오른쪽 이동
+                        self.rect.right = sprite.rect.left
+                    if self.direction.x < 0: # 왼쪽 이동
+                        self.rect.left = sprite.rect.right
+        
+        # 수직 : 좌우로 걸을 때
+        if direction == 'vertical':
+            for sprite in self.obstacle_sprites:
+                if sprite.rect.colliderect(self.rect):
+                    if self.direction.y > 0: # 아래로 이동
+                        self.rect.bottom = sprite.rect.top
+                    if self.direction.y < 0:
+                        self.rect.top = sprite.rect.bottom
+
+    def update(self):
+        self.input()
+        self.move(self.speed)

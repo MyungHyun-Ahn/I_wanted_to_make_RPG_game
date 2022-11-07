@@ -10,7 +10,7 @@ class Game:
         self.screen = pygame.display.set_mode((WIDTH, HEIGTH))
 
         # 타이틀 설정
-        pygame.display.set_caption('Zelda')
+        pygame.display.set_caption('MY RPG PROJECT')
 
         # FPS 설정을 위한 Clock 객체
         self.clock = pygame.time.Clock()
