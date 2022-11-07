@@ -1,5 +1,6 @@
 # pygame_rpg_project
 
-아래 블로그를 보고 따라해본 뒤
-제 이것저것 수정하며 추가하고 제 게임을 만들 예정입니다.
-https://printed.tistory.com/120
+유튜브 Creating a Zelda style game in Python [with some Dark Souls elements] 영상을 보고 분석 따라 만들어 본 후
+pygame RPG 게임 제작 예정입니다.
+
+https://www.youtube.com/watch?v=QU1pPzEGrqw
