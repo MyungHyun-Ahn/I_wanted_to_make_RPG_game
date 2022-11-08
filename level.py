@@ -3,6 +3,8 @@ from settings import *
 from tile import Tile
 from player import Player
 from debug import debug
+from support import * 
+from random import choice
 
 # 수 많은 스프라이트를 효율적으로 관리할 수 있어야 함
 class Level:
@@ -18,25 +20,56 @@ class Level:
         # 스프라이트 셋업
         self.create_map()
     
-    # 맵을 그리는 메소드
-    def create_map(self):
-        # enumerate 함수 : 인덱스와 원소를 동시에 반복시킬 수 있게 함
-        for row_index, row in enumerate(WORLD_MAP):
-            # print(row) WORLD_MAP row 값을 출력
-            # print(row_index) WORLD_MAP row 인덱스 값을 출력
-            for col_index, col in enumerate(row):
-                # 인덱스 * TILESIZE로 좌표를 계산
-                x = col_index * TILESIZE
-                y = row_index * TILESIZE
+    # # 맵을 그리는 메소드
+    # def create_map(self):
+    #     # enumerate 함수 : 인덱스와 원소를 동시에 반복시킬 수 있게 함
+    #     for row_index, row in enumerate(WORLD_MAP):
+    #         # print(row) WORLD_MAP row 값을 출력
+    #         # print(row_index) WORLD_MAP row 인덱스 값을 출력
+    #         for col_index, col in enumerate(row):
+    #             # 인덱스 * TILESIZE로 좌표를 계산
+    #             x = col_index * TILESIZE
+    #             y = row_index * TILESIZE
 
-                if col == 'x':
-                    # col이 x 일때 돌을 그림
-                    Tile((x, y), [self.visible_sprites, self.obstacle_sprites])
+    #             if col == 'x':
+    #                 # col이 x 일때 돌을 그림
+    #                 Tile((x, y), [self.visible_sprites, self.obstacle_sprites])
                 
-                if col == 'p':
-                    # col이 p 일때 플레이어를 그림
-                    self.player = Player((x,y),[self.visible_sprites], self.obstacle_sprites)
+    #             if col == 'p':
+    #                 # col이 p 일때 플레이어를 그림
+    #                 self.player = Player((x,y),[self.visible_sprites], self.obstacle_sprites)
     
+    def create_map(self):
+        layouts = {
+			'boundary': import_csv_layout('resource/map/map_FloorBlocks.csv'),
+			'grass': import_csv_layout('resource/map/map_Grass.csv'),
+			'object': import_csv_layout('resource/map/map_Objects.csv'),
+		}
+        graphics = {
+			'grass': import_folder('resource/graphics/Grass'),
+			'objects': import_folder('resource/graphics/objects')
+		}
+
+        for style, layout in layouts.items():
+            for row_index, row in enumerate(layout):
+                for col_index, col in enumerate(row):
+                    if col != '-1':
+                        x = col_index * TILESIZE
+                        y = row_index * TILESIZE
+                        if style == 'boundary':
+                            Tile((x, y), [self.obstacle_sprites], 'invisible')
+
+                        if style == 'grass':
+                            random_grass_image = choice(graphics['grass'])
+                            Tile((x, y), [self.visible_sprites, self.obstacle_sprites], 'grass', random_grass_image)
+
+                        if style == 'object':
+                            surf = graphics['objects'][int(col)]
+                            Tile((x, y), [self.visible_sprites, self.obstacle_sprites], 'object', surf)
+
+                        self.player = Player((2000, 1430),[self.visible_sprites], self.obstacle_sprites)
+                        
+
     def run(self):
         # 배경 그리기
         # self.visible_sprites.draw(self.display_surface)
@@ -54,10 +87,16 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.half_height = self.display_surface.get_size()[1] // 2
         self.offset = pygame.math.Vector2()
 
+        self.floor_surf = pygame.image.load('resource/graphics/tilemap/ground.png').convert_alpha()
+        self.floor_rect = self.floor_surf.get_rect(topleft = (0, 0))
+
     def custom_draw(self, player: Player):
         # 좌표 받아오기
         self.offset.x = player.rect.centerx - self.half_width
         self.offset.y = player.rect.centery - self.half_height
+
+        floor_offset_pos = self.floor_rect.topleft - self.offset
+        self.display_surface.blit(self.floor_surf, floor_offset_pos)
 
         # for sprite in self.sprites():
         for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):

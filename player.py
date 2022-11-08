@@ -15,12 +15,13 @@ class Player(pygame.sprite.Sprite):
         # .get_rect 이미지의 직사각형 영역을 가져옴
         self.rect = self.image.get_rect(topleft = pos)
 
+        self.hitbox = self.rect.inflate(0, -26)
         # 벡터
         # default [ x : 0 -> 1 * speed (이동속도) ] 
         #         [ y : 0 -> 1 * speed (이동속도) ]
         self.direction = pygame.math.Vector2()
 
-        self.speed = 5
+        self.speed = 20
 
         # 장애물 받아오기
         self.obstacle_sprites = obstacle_sprites
@@ -51,30 +52,31 @@ class Player(pygame.sprite.Sprite):
             # self.collision('horizontal')
             # self.rect.y += self.direction.y * speed
             # self.collision('vertical')
-        self.rect.x += self.direction.x * speed
+        self.hitbox.x += self.direction.x * speed
         self.collision('horizontal')
-        self.rect.y += self.direction.y * speed
+        self.hitbox.y += self.direction.y * speed
         self.collision('vertical')
         # self.rect.center += self.direction * speed # 정규화가 필요함, 벡터의 길이를 1로 만드는 것
+        self.rect.center = self.hitbox.center
 
     def collision(self, direction: pygame.math.Vector2) -> None:
-        # 수평 : 위아래로 걸을 때
+        # 수평 : 좌우로 걸을 때
         if direction == 'horizontal':
             for sprite in self.obstacle_sprites:
-                if sprite.rect.colliderect(self.rect):
+                if sprite.hitbox.colliderect(self.hitbox):
                     if self.direction.x > 0: # 오른쪽 이동
-                        self.rect.right = sprite.rect.left
+                        self.hitbox.right = sprite.hitbox.left
                     if self.direction.x < 0: # 왼쪽 이동
-                        self.rect.left = sprite.rect.right
+                        self.hitbox.left = sprite.hitbox.right
         
-        # 수직 : 좌우로 걸을 때
+        # 수직 : 위아래로 걸을 때
         if direction == 'vertical':
             for sprite in self.obstacle_sprites:
-                if sprite.rect.colliderect(self.rect):
+                if sprite.hitbox.colliderect(self.hitbox):
                     if self.direction.y > 0: # 아래로 이동
-                        self.rect.bottom = sprite.rect.top
+                        self.hitbox.bottom = sprite.hitbox.top
                     if self.direction.y < 0:
-                        self.rect.top = sprite.rect.bottom
+                        self.hitbox.top = sprite.hitbox.bottom
 
     def update(self):
         self.input()
