@@ -6,6 +6,7 @@ from debug import debug
 from support import * 
 from random import choice
 from weapon import Weapon
+from ui import UI
 
 # 수 많은 스프라이트를 효율적으로 관리할 수 있어야 함
 class Level:
@@ -23,6 +24,8 @@ class Level:
 
         # 스프라이트 셋업
         self.create_map()
+
+        self.ui = UI()
     
     # # 맵을 그리는 메소드
     # def create_map(self):
@@ -71,10 +74,22 @@ class Level:
                             surf = graphics['objects'][int(col)]
                             Tile((x, y), [self.visible_sprites, self.obstacle_sprites], 'object', surf)
 
-        self.player = Player((2000, 1430),[self.visible_sprites], self.obstacle_sprites, self.create_attack, self.destroy_attack)
+        self.player = Player(
+            (2000, 1430), 
+            [self.visible_sprites], 
+            self.obstacle_sprites, 
+            self.create_attack, 
+            self.destroy_attack, 
+            self.create_magic
+        )
                         
     def create_attack(self):
         self.current_attack = Weapon(self.player, [self.visible_sprites])
+
+    def create_magic(self, style, strength, cost):
+        print(style)
+        print(strength)
+        print(cost)
 
     def destroy_attack(self):
         if self.current_attack:
@@ -88,6 +103,7 @@ class Level:
 
         self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update()
+        self.ui.display(self.player)
         debug(self.player.direction)
 
 
