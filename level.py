@@ -4,10 +4,11 @@ from tile import Tile
 from player import Player
 from debug import debug
 from support import * 
-from random import choice
+from random import choice, randint
 from weapon import Weapon
 from ui import UI
 from enemy import Enemy
+from particles import AnimationPlayer
 
 # 수 많은 스프라이트를 효율적으로 관리할 수 있어야 함
 class Level:
@@ -28,7 +29,11 @@ class Level:
         # 스프라이트 셋업
         self.create_map()
 
+        # user interface
         self.ui = UI()
+
+        # particles
+        self.animation_player = AnimationPlayer()
     
     # # 맵을 그리는 메소드
     # def create_map(self):
@@ -68,15 +73,29 @@ class Level:
                         x = col_index * TILESIZE
                         y = row_index * TILESIZE
                         if style == 'boundary':
-                            Tile((x, y), [self.obstacle_sprites], 'invisible')
+                            Tile(
+                                (x, y), 
+                                [self.obstacle_sprites],
+                                'invisible'
+                            )
 
                         if style == 'grass':
                             random_grass_image = choice(graphics['grass'])
-                            Tile((x, y), [self.visible_sprites, self.obstacle_sprites], 'grass', random_grass_image)
+                            Tile(
+                                (x, y), 
+                                [self.visible_sprites, self.obstacle_sprites, self.attackable_sprites], 
+                                'grass', 
+                                random_grass_image
+                            )
 
                         if style == 'object':
                             surf = graphics['objects'][int(col)]
-                            Tile((x, y), [self.visible_sprites, self.obstacle_sprites], 'object', surf)
+                            Tile(
+                                (x, y), 
+                                [self.visible_sprites, self.obstacle_sprites], 
+                                'object', 
+                                surf
+                            )
 
                         if style == 'entities':
                             if col == '394':
@@ -102,7 +121,8 @@ class Level:
                                     (x, y), 
                                     [self.visible_sprites, self.attackable_sprites], 
                                     self.obstacle_sprites,
-                                    self.damage_player
+                                    self.damage_player,
+                                    self.trigger_death_particles
                                 )
                         
     def create_attack(self):
@@ -129,6 +149,10 @@ class Level:
                 if collision_sprites:
                     for target_sprite in collision_sprites:
                         if target_sprite.sprite_type == 'grass':
+                            pos = target_sprite.rect.center
+                            offset = pygame.math.Vector2(0, 75)
+                            for leaf in range(randint(3, 6)):
+                                self.animation_player.create_grass_particles(pos - offset, [self.visible_sprites])
                             target_sprite.kill()
                         else:
                             target_sprite.get_damage(self.player, attack_sprite.sprite_type)
@@ -138,7 +162,10 @@ class Level:
             self.player.health -= amount
             self.player.vulnerable = False
             self.player.hurt_time = pygame.time.get_ticks()
-            # spawn particles
+            self.animation_player.create_particles(attack_type, self.player.rect.center, [self.visible_sprites])
+
+    def trigger_death_particles(self, pos, particle_type):
+        self.animation_player.create_particles(particle_type, pos, self.visible_sprites)
 
     def run(self):
         # 배경 그리기

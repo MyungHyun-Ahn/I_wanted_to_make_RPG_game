@@ -6,7 +6,7 @@ from support import *
 from typing import Callable
 
 class Enemy(Entity):
-    def __init__(self,monster_name, pos, groups: list, obstacle_sprites: pygame.sprite.Group, damage_player: Callable) -> None:
+    def __init__(self,monster_name, pos, groups: list, obstacle_sprites: pygame.sprite.Group, damage_player: Callable, trigger_death_particles: Callable) -> None:
         # general setup
         super().__init__(groups)
         self.sprite_type = 'enemy'
@@ -14,34 +14,35 @@ class Enemy(Entity):
         # graphics setup
         self.import_graphics(monster_name)
         self.status = 'idle'
-        self.image = self.animations[self.status][self.frame_index]
+        self.image  = self.animations[self.status][self.frame_index]
 
         # movement
-        self.rect = self.image.get_rect(topleft = pos)
-        self.hitbox = self.rect.inflate(0, -10)
+        self.rect             = self.image.get_rect(topleft = pos)
+        self.hitbox           = self.rect.inflate(0, -10)
         self.obstacle_sprites = obstacle_sprites
 
         # stats
-        self.monster_name = monster_name
-        monster_info = monster_data[self.monster_name]
-        self.health = monster_info['health']
-        self.exp = monster_info['exp']
-        self.speed = monster_info['speed']
+        self.monster_name  = monster_name
+        monster_info       = monster_data[self.monster_name]
+        self.health        = monster_info['health']
+        self.exp           = monster_info['exp']
+        self.speed         = monster_info['speed']
         self.attack_damage = monster_info['damage']
-        self.resistance = monster_info['resistance']
+        self.resistance    = monster_info['resistance']
         self.attack_radius = monster_info['attack_radius']
         self.notice_radius = monster_info['notice_radius']
-        self.attack_type = monster_info['attack_type']
+        self.attack_type   = monster_info['attack_type']
 
         # player interaction
-        self.can_attack = True
-        self.attack_time = None
-        self.attack_cooldown = 400
-        self.damage_player = damage_player
+        self.can_attack              = True
+        self.attack_time             = None
+        self.attack_cooldown         = 400
+        self.damage_player           = damage_player
+        self.trigger_death_particles = trigger_death_particles
 
         # invincibility timer
-        self.vulnerable = True
-        self.hit_time = None
+        self.vulnerable             = True
+        self.hit_time               = None
         self.invincibility_duration = 300
         
     def import_graphics(self, name: str):
@@ -131,6 +132,7 @@ class Enemy(Entity):
     def check_death(self):
         if self.health <= 0:
             self.kill()
+            self.trigger_death_particles(self.rect.center, self.monster_name)
     
     def hit_reaction(self):
         if not self.vulnerable:
