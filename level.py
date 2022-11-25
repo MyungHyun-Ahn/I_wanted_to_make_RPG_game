@@ -9,7 +9,7 @@ from weapon import Weapon
 from ui import UI
 from enemy import Enemy
 from particles import AnimationPlayer
-
+from magic import MagicPlayer
 # 수 많은 스프라이트를 효율적으로 관리할 수 있어야 함
 class Level:
     def __init__(self) -> None:
@@ -34,6 +34,7 @@ class Level:
 
         # particles
         self.animation_player = AnimationPlayer()
+        self.magic_player = MagicPlayer(self.animation_player)
     
     # # 맵을 그리는 메소드
     # def create_map(self):
@@ -132,9 +133,11 @@ class Level:
         )
 
     def create_magic(self, style, strength, cost):
-        print(style)
-        print(strength)
-        print(cost)
+        if style == 'heal':
+            self.magic_player.heal(self.player, strength, cost, [self.visible_sprites])
+
+        if style == 'flame':
+            self.magic_player.flame(self.player, cost, [self.visible_sprites, self.attack_sprites])
 
     def destroy_attack(self):
         if self.current_attack:
