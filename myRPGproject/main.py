@@ -10,7 +10,7 @@ class Game:
         self.screen = pygame.display.set_mode((WIDTH, HEIGTH))
 
         # 타이틀 설정
-        pygame.display.set_caption('MY RPG PROJECT')
+        pygame.display.set_caption('RPG 게임을 만들고 싶었다')
 
         # FPS 설정을 위한 Clock 객체
         self.clock = pygame.time.Clock()
@@ -34,4 +34,4 @@ class Game:
 
 if __name__ == '__main__':
 	game = Game()
-	game.run()  
+	game.run()

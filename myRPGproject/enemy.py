@@ -6,7 +6,7 @@ from support import *
 from typing import Callable
 
 class Enemy(Entity):
-    def __init__(self, monster_name, monster_type, pos, groups: list, obstacle_sprites: pygame.sprite.Group, damage_player: Callable, trigger_death_particles: Callable) -> None:
+    def __init__(self, monster_name, monster_type, pos, groups: list, obstacle_sprites: pygame.sprite.Group, damage_player: Callable, trigger_death_particles: Callable, monster_count_down: Callable) -> None:
         # general setup
         super().__init__(groups)
         self.sprite_type = 'enemy'
@@ -40,6 +40,9 @@ class Enemy(Entity):
         self.attack_cooldown         = 400
         self.damage_player           = damage_player
         self.trigger_death_particles = trigger_death_particles
+
+        # level interaction
+        self.monster_count_down = monster_count_down
 
         # invincibility timer
         self.vulnerable             = True
@@ -159,6 +162,7 @@ class Enemy(Entity):
         if self.health <= 0:
             self.kill()
             self.trigger_death_particles(self.rect.center, self.monster_name)
+            self.monster_count_down()
     
     def hit_reaction(self):
         if not self.vulnerable:

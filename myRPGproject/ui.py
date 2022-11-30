@@ -75,12 +75,38 @@ class UI:
 
         self.display_surface.blit(magic_surf, magic_rect)
 
-    def display(self, player: Player):
+    def monster_count(self, monster_count):
+        text_surf = self.font.render("remaining monsters : {}".format(monster_count), False, TEXT_COLOR)
+        x = self.display_surface.get_size()[0] - 100
+        y = 40
+        text_rect = text_surf.get_rect(bottomright = (x, y))
+
+        pygame.draw.rect(self.display_surface, UI_BG_COLOR, text_rect.inflate(20, 20))
+        self.display_surface.blit(text_surf, text_rect)
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, text_rect.inflate(20, 20), 3)
+
+    def draw_round(self, game_round: int):
+        font = pygame.font.Font(UI_FONT, 60)
+
+        text_surf = font.render("Round {}".format(game_round), False, TEXT_COLOR)
+        x = 640
+        y = 360
+
+        text_rect = text_surf.get_rect(center = (x, y))
+
+        pygame.draw.rect(self.display_surface, UI_BG_COLOR, text_rect.inflate(20, 20))
+        self.display_surface.blit(text_surf, text_rect)
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, text_rect.inflate(20, 20), 3)
+
+
+    def display(self, player: Player, monster_count: int):
         self.show_bar(player.health, player.stats['health'], self.health_bar_rect, HEALTH_COLOR)
         self.show_bar(player.energy, player.stats['energy'], self.energy_bar_rect, ENERGY_COLOR)
 
         self.show_exp(player.exp)
 
+        self.monster_count(monster_count)
+        
         self.weapon_overlay(player.weapon_index, not player.can_switch_weapon)
         self.magic_overlay(player.magic_index, not player.can_switch_magic)
         # self.selection_box(80, 635) # magic

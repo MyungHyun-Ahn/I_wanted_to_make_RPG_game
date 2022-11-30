@@ -26,6 +26,17 @@ class Level:
 		self.attack_sprites = pygame.sprite.Group()
 		self.attackable_sprites = pygame.sprite.Group()
 
+		# spawner option
+		self.map_size = 50
+		self.grass_count = 50
+		self.object_count = 30
+		self.entity_count = 50
+
+		self.monster_count = self.entity_count # 기본값
+
+		# round
+		self.round = 0
+		self.ticks = 0
 		# 스프라이트 셋업
 		self.create_map()
 
@@ -37,12 +48,23 @@ class Level:
 		self.magic_player = MagicPlayer(self.animation_player)
 
 	def create_map(self):
+		self.round += 1
+		self.ticks = 0
+
+		self.reset_map()
+
+		boundary = import_csv_layout('resource/map/boundary.csv')
+		grass = import_csv_layout('resource/map/grass.csv')
+		objectl = import_csv_layout('resource/map/object.csv')
+		entities = import_csv_layout('resource/map/entities.csv')
+
 		layouts = {
-			'boundary': import_csv_layout('resource/map/boundary.csv'),
-			# 'grass': import_csv_layout('resource/map/map_Grass.csv'),
-			# 'object': import_csv_layout('resource/map/map_Objects.csv'),
-			# 'entities' : import_csv_layout('resource/map/entities.csv')
+			'boundary': boundary,
+			'grass': grass,
+			'object': objectl,
+			'entities' : entities
 		}
+
 		graphics = {
 			'grass': import_folder('resource/graphics/Grass'),
 			'objects': import_folder('resource/graphics/objects')
@@ -120,8 +142,10 @@ class Level:
 								[self.visible_sprites, self.attackable_sprites], 
 								self.obstacle_sprites,
 								self.damage_player,
-								self.trigger_death_particles
+								self.trigger_death_particles,
+								self.monster_count_down
 							)
+							self.monster_count += 1
 
 	def create_attack(self):
 		self.current_attack = Weapon(
@@ -167,6 +191,27 @@ class Level:
 	def trigger_death_particles(self, pos, particle_type):
 		self.animation_player.create_particles(particle_type, pos, self.visible_sprites)
 
+	# setter
+	def monster_count_down(self):
+		self.monster_count -= 1
+
+	
+	def display_round(self):
+		if self.ticks < 180:
+			self.ui.draw_round(self.round)
+			self.ticks += 1
+
+	def reset_map(self):
+		boundary_list = make_boundary_list(50)
+		list_to_csv(boundary_list, 'boundary')
+		grass_list = make_grass_list(self.monster_count, boundary_list)
+		list_to_csv(grass_list, 'grass')
+		object_list = make_object_list([0], self.grass_count, boundary_list, grass_list)
+		list_to_csv(object_list, 'object')
+		entity_list = make_entity_list([390, 391, 393], self.entity_count, boundary_list, grass_list, object_list)
+		list_to_csv(entity_list, 'entities')	
+		
+
 	def run(self):
 		# 배경 그리기
 		# self.visible_sprites.draw(self.display_surface)
@@ -175,7 +220,9 @@ class Level:
 		self.visible_sprites.update()
 		self.visible_sprites.enemy_update(self.player)
 		self.player_attack_logic()
-		self.ui.display(self.player)
+		self.ui.display(self.player, self.monster_count)
+		self.display_round()
+		
 
 
 # Y좌표 기준으로 카메라를 정렬
