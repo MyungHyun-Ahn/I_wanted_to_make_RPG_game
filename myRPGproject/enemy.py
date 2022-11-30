@@ -6,10 +6,11 @@ from support import *
 from typing import Callable
 
 class Enemy(Entity):
-    def __init__(self, monster_name, pos, groups: list, obstacle_sprites: pygame.sprite.Group, damage_player: Callable, trigger_death_particles: Callable) -> None:
+    def __init__(self, monster_name, monster_type, pos, groups: list, obstacle_sprites: pygame.sprite.Group, damage_player: Callable, trigger_death_particles: Callable) -> None:
         # general setup
         super().__init__(groups)
         self.sprite_type = 'enemy'
+        self.monster_type  = monster_type
 
         # graphics setup
         self.import_graphics(monster_name)
@@ -46,11 +47,22 @@ class Enemy(Entity):
         self.invincibility_duration = 300
         
     def import_graphics(self, name: str):
-        self.animations = {
+        if self.monster_type == 'normal':
+            self.animations = {
+                'idle'         : [],
+                'up'           : [],
+                'down'         : [],
+                'left'         : [],
+                'right'        : [],
+                'attack'       : []
+            }
+        elif self.monster_type == 'unique':
+            self.animations = {
             'idle'  : [],
             'move'  : [],
             'attack': []
-        }
+            }
+        
 
         main_path = 'resource/graphics/monsters/{}/'.format(name)
         for animation in self.animations.keys():
@@ -63,6 +75,7 @@ class Enemy(Entity):
 
         if distance > 0:
             direction = (player_vec - enemy_vec).normalize()
+            # print(direction)
         else:
             direction = pygame.math.Vector2()
 
@@ -70,13 +83,28 @@ class Enemy(Entity):
     
     def get_status(self, player: Player):
         distance = self.get_player_distance_direction(player)[0]
+        direction = self.get_player_distance_direction(player)[1]
 
         if distance <= self.attack_radius and self.can_attack:
             if self.status != 'attack':
                 self.frame_index = 0
             self.status = 'attack'
         elif distance <= self.notice_radius:
-            self.status = 'move'
+            if self.monster_type == 'normal':
+            # 위쪽
+                if (direction.x < 0.5 and direction.x > -0.5) and direction.y < -0.5:
+                    self.status = 'up'
+                # 아래쪽
+                elif (direction.x < 0.5 and direction.x > -0.5) and direction.y > 0.5:
+                    self.status = 'down'
+                # 오른쪽
+                elif direction.x >= 0.5 and (direction.y <= 0.5 and direction.y >= -0.5):
+                    self.status = 'right'
+                # 왼쪽
+                elif direction.x <= -0.5 and (direction.y <= 0.5 and direction.y >= -0.5):
+                    self.status = 'left'
+            else:
+                self.status = 'move'
         else:
             self.status = 'idle'
     
@@ -84,8 +112,7 @@ class Enemy(Entity):
         if self.status == 'attack':
             self.attack_time = pygame.time.get_ticks()
             self.damage_player(self.attack_damage, self.attack_type)
-            print('attack')
-        elif self.status == 'move':
+        elif self.status == 'up' or self.status == 'down' or self.status == 'right' or self.status == 'left' or self.status == 'move':
             self.direction = self.get_player_distance_direction(player)[1]
         else:
             self.direction = pygame.math.Vector2()
