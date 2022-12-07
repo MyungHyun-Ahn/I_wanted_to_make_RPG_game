@@ -98,10 +98,34 @@ class UI:
         self.display_surface.blit(text_surf, text_rect)
         pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, text_rect.inflate(20, 20), 3)
 
+    
+    def draw_clear(self, ticks: int):
+        font = pygame.font.Font(UI_FONT, 60)
+
+        text_surf = font.render("Clear", False, TEXT_COLOR)
+        text_surf2 = self.font.render("next stage starts in {} second".format(ticks), False, TEXT_COLOR)
+
+        x = 640
+        y = 360
+        x2 = 640
+        y2 = 425
+
+
+        text_rect = text_surf.get_rect(center = (x, y))
+        text_rect2 = text_surf2.get_rect(center = (x2, y2))
+
+        pygame.draw.rect(self.display_surface, UI_BG_COLOR, text_rect.inflate(20, 20))
+        self.display_surface.blit(text_surf, text_rect)
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, text_rect.inflate(20, 20), 3)
+
+        pygame.draw.rect(self.display_surface, UI_BG_COLOR, text_rect2.inflate(20, 20))
+        self.display_surface.blit(text_surf2, text_rect2)
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, text_rect2.inflate(20, 20), 3)
+
 
     def display(self, player: Player, monster_count: int):
-        self.show_bar(player.health, player.stats['health'], self.health_bar_rect, HEALTH_COLOR)
-        self.show_bar(player.energy, player.stats['energy'], self.energy_bar_rect, ENERGY_COLOR)
+        self.show_bar(player.health, player.max_stats['health'], self.health_bar_rect, HEALTH_COLOR)
+        self.show_bar(player.energy, player.max_stats['energy'], self.energy_bar_rect, ENERGY_COLOR)
 
         self.show_exp(player.exp)
 

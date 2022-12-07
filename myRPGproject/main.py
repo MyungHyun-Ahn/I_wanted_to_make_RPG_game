@@ -23,6 +23,9 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_m:
+                        self.level.toggle_menu()
 
             self.screen.fill('black')
             # 디버그 왼쪽 상단에 메세지 출력

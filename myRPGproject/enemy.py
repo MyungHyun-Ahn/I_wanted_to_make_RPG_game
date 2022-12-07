@@ -6,7 +6,7 @@ from support import *
 from typing import Callable
 
 class Enemy(Entity):
-    def __init__(self, monster_name, monster_type, pos, groups: list, obstacle_sprites: pygame.sprite.Group, damage_player: Callable, trigger_death_particles: Callable, monster_count_down: Callable) -> None:
+    def __init__(self, monster_name: str, monster_type: str, game_round: int, pos: tuple, groups: list, obstacle_sprites: pygame.sprite.Group, damage_player: Callable, trigger_death_particles: Callable, monster_count_down: Callable, drop_item: Callable, add_exp: Callable) -> None:
         # general setup
         super().__init__(groups)
         self.sprite_type = 'enemy'
@@ -25,10 +25,10 @@ class Enemy(Entity):
         # stats
         self.monster_name  = monster_name
         monster_info       = monster_data[self.monster_name]
-        self.health        = monster_info['health']
-        self.exp           = monster_info['exp']
+        self.health        = monster_info['health'] + monster_info['health'] * (game_round / 10)
+        self.exp           = monster_info['exp'] + monster_info['exp'] * (game_round / 10)
         self.speed         = monster_info['speed']
-        self.attack_damage = monster_info['damage']
+        self.attack_damage = monster_info['damage'] + monster_info['damage'] * (game_round / 10)
         self.resistance    = monster_info['resistance']
         self.attack_radius = monster_info['attack_radius']
         self.notice_radius = monster_info['notice_radius']
@@ -40,6 +40,7 @@ class Enemy(Entity):
         self.attack_cooldown         = 400
         self.damage_player           = damage_player
         self.trigger_death_particles = trigger_death_particles
+        self.add_exp = add_exp
 
         # level interaction
         self.monster_count_down = monster_count_down
@@ -48,6 +49,8 @@ class Enemy(Entity):
         self.vulnerable             = True
         self.hit_time               = None
         self.invincibility_duration = 300
+
+        self.drop_item = drop_item
         
     def import_graphics(self, name: str):
         if self.monster_type == 'normal':
@@ -163,10 +166,13 @@ class Enemy(Entity):
             self.kill()
             self.trigger_death_particles(self.rect.center, self.monster_name)
             self.monster_count_down()
+            self.drop_item(self.rect.center)
+            self.add_exp(self.exp)
     
     def hit_reaction(self):
         if not self.vulnerable:
             self.direction *= -self.resistance
+
 
     def update(self):
         self.hit_reaction()

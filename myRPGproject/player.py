@@ -4,11 +4,12 @@ from support import import_folder
 from debug import debug
 from entity import Entity
 from typing import Callable
+from item import Item
 
 # pygame Sprite 클래스 상속
 class Player(Entity):
     # 생성자
-    def __init__(self, pos: tuple, groups: list, obstacle_sprites: pygame.sprite.Group, create_attack: Callable, destroy_attack: Callable, create_magic: Callable) -> None:
+    def __init__(self, pos: tuple, groups: list, obstacle_sprites: pygame.sprite.Group, item_sprites: pygame.sprite.Group, create_attack: Callable, destroy_attack: Callable, create_magic: Callable) -> None:
         # 부모 클래스의 생성자를 먼저 로드
         super().__init__(groups)
         # .convert_alpha() : blit의 속도를 향상시킴
@@ -38,6 +39,9 @@ class Player(Entity):
         # 장애물 받아오기
         self.obstacle_sprites = obstacle_sprites
 
+        # item
+        self.item_sprites = item_sprites
+
 		# weapon
         self.create_attack = create_attack
         self.destroy_attack = destroy_attack
@@ -64,9 +68,25 @@ class Player(Entity):
             'speed'  : 5
         }
 
+        self.max_stats = {
+            'health' : 300,
+            'energy' : 140,
+            'attack' : 20,
+            'magic'  : 100,
+            'speed'  : 10
+        }
+
+        self.upgrade_cost = {
+            'health' : 100,
+            'energy' : 100,
+            'attack' : 100,
+            'magic'  : 100,
+            'speed'  : 100
+        }
+
         self.health = self.stats['health'] * 0.5
         self.energy = self.stats['energy'] * 0.8
-        self.exp = 123
+        self.exp = 5000
         self.speed = self.stats['speed']
 
         # damage timer
@@ -184,8 +204,10 @@ class Player(Entity):
             # self.collision('vertical')
         self.hitbox.x += self.direction.x * speed
         self.collision('horizontal')
+        self.item('horizontal')
         self.hitbox.y += self.direction.y * speed
         self.collision('vertical')
+        self.item('vertical')
         # self.rect.center += self.direction * speed # 정규화가 필요함, 벡터의 길이를 1로 만드는 것
         self.rect.center = self.hitbox.center
 
@@ -207,6 +229,23 @@ class Player(Entity):
                         self.hitbox.bottom = sprite.hitbox.top
                     if self.direction.y < 0:
                         self.hitbox.top = sprite.hitbox.bottom
+
+    def item(self, direction: pygame.math.Vector2) -> None:
+        for item in self.item_sprites:
+            if direction == 'horizontal':
+                if item.rect.colliderect(self.hitbox):
+                    if self.direction.y > 0:
+                        item.use_item()
+                    if self.direction.y < 0:
+                        item.use_item()
+
+        for item in self.item_sprites:
+            if direction == 'vertical':
+                if item.rect.colliderect(self.hitbox):
+                    if self.direction.y > 0:
+                        item.use_item()
+                    if self.direction.y < 0:
+                        item.use_item()
 
     def cooldowns(self):
         current_time = pygame.time.get_ticks()
@@ -257,12 +296,23 @@ class Player(Entity):
         spell_damage = magic_data[self.magic]['strength']
         return base_damage + spell_damage
 
+    def get_value_by_index(self, index):
+        return list(self.stats.values())[index]
+
+    def get_cost_by_index(self, index):
+        return list(self.upgrade_cost.values())[index]
+
     def energy_recovery(self):
         if self.energy < self.stats['energy']:
             self.energy += 0.01 * self.stats['magic']
         else:
             self.energy = self.stats['energy']
-
+    
+    def goto_xy(self, xy: tuple, groups: list):
+        super().__init__(groups)
+        self.hitbox.x = xy[0]
+        self.hitbox.y = xy[1]
+ 
     def update(self):
         self.input()
         self.cooldowns()

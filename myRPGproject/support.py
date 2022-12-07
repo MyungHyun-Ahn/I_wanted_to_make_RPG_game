@@ -39,27 +39,6 @@ def make_boundary_list(size: int):
     return boundary_list
 
 
-def make_grass_list(size: int, grass_num: int, boundary_list: list):
-    grass_list = [[-1] * size for _ in range(size)]
-
-    count = 0
-    
-    while True:
-        random_x = randint(0, len(boundary_list) - 1)
-        random_y = randint(0, len(boundary_list) - 1)
-
-        if boundary_list[random_y][random_x] != -1:
-            continue
-        else:
-            grass_list[random_y][random_x] = choice([8, 9, 10])
-            count += 1
-            print('잔디 생성 성공')
-        
-        if count == grass_num:
-            break
-    
-    return grass_list
-
 
 # 0, 1, 2, 3, 4
 def make_grass_list(size: int, grass_num: int, boundary_list: list):
@@ -76,7 +55,6 @@ def make_grass_list(size: int, grass_num: int, boundary_list: list):
         else:
             grass_list[random_y][random_x] = choice([8, 9, 10])
             count += 1
-            print('잔디 생성 성공')
         
         if count == grass_num:
             break
@@ -98,7 +76,6 @@ def make_object_list(size: int, obj_list: list, object_num: int, boundary_list: 
         else:
             object_list[random_y][random_x] = choice(obj_list)
             count += 1
-            print('오브젝트 생성 성공')
         
         if count == object_num:
             break
@@ -129,8 +106,6 @@ def make_entity_list(size: int, monster_list: list, monster_num: int, boundary_l
         else:
             entity_list[random_y][random_x] = choice(monster_list)
             count += 1
-            print('몬스터 생성 성공')
-            print(count)
         
         if count == monster_num:
             break
@@ -184,11 +159,11 @@ def list_to_csv(target_list: list, file_name: str):
 
 
 if __name__ == "__main__":
-    boundary_list = make_boundary_list(50)
+    boundary_list = generate_binary_tree_maze(51)
     list_to_csv(boundary_list, 'boundary')
-    grass_list = make_grass_list(50, 50, boundary_list)
-    list_to_csv(grass_list, 'grass')
-    object_list = make_object_list(50, [0, 1, 2, 3, 4], 30, boundary_list, grass_list)
-    list_to_csv(object_list, 'object')
-    entity_list = make_entity_list(50, [390, 391, 393], 50, boundary_list, grass_list, object_list)
-    list_to_csv(entity_list, 'entities')
+    # grass_list = make_grass_list(50, 50, boundary_list)
+    # list_to_csv(grass_list, 'grass')
+    # object_list = make_object_list(50, [0, 1, 2, 3, 4], 30, boundary_list, grass_list)
+    # list_to_csv(object_list, 'object')
+    # entity_list = make_entity_list(50, [390, 391, 393], 50, boundary_list, grass_list, object_list)
+    # list_to_csv(entity_list, 'entities')

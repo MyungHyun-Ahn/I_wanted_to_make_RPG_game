@@ -1,6 +1,8 @@
 import pygame 
+from pygame.locals import Rect
 from settings import *
 from tile import Tile
+from item import Item
 from player import Player
 from debug import debug
 from support import * 
@@ -10,38 +12,46 @@ from ui import UI
 from enemy import Enemy
 from particles import AnimationPlayer
 from magic import MagicPlayer
+from upgrade import Upgrade
 
 class Level:
 	def __init__(self):
 		# 이미지 가져옴
 		self.display_surface = pygame.display.get_surface()
+		self.game_paused = False
 
 		# 스프라이트 그룹 셋업
 		# self.visible_sprites = pygame.sprite.Group() # 스프라이트를 그리는 그룹
 		self.visible_sprites = YSortCameraGroup() # 커스텀 그룹
 		self.obstacle_sprites = pygame.sprite.Group() # 플레이어가 충돌할 수 있는 스프라이트 그룹
+		self.item_sprites = pygame.sprite.Group()
 
 		# 공격 스프라이트
 		self.current_attack = None
 		self.attack_sprites = pygame.sprite.Group()
 		self.attackable_sprites = pygame.sprite.Group()
 
-		# spawner option
-		self.map_size = 50
-		self.grass_count = 50
-		self.object_count = 30
-		self.entity_count = 50
+		# map option 초기값
+		self.map_size = 20
+		self.grass_count = 5
+		self.object_count = 3
+		self.entity_count = 1
 
-		self.monster_count = self.entity_count # 기본값
+		self.monster_count = self.entity_count
 
 		# round
 		self.round = 0
-		self.ticks = 0
+
+		# ticks
+		self.round_ticks = 0
+		self.end_ticks = 0
+
 		# 스프라이트 셋업
 		self.create_map()
 
 		# user interface
 		self.ui = UI()
+		self.upgrade = Upgrade(self.player)
 
 		# particles
 		self.animation_player = AnimationPlayer()
@@ -49,9 +59,15 @@ class Level:
 
 	def create_map(self):
 		self.round += 1
-		self.ticks = 0
+		self.round_ticks = 0
 
+		self.map_upgrade()
 		self.reset_map()
+		
+		self.visible_sprites.empty()
+		self.obstacle_sprites.empty()
+		self.item_sprites.empty()
+		
 
 		boundary = import_csv_layout('resource/map/boundary.csv')
 		grass = import_csv_layout('resource/map/grass.csv')
@@ -87,14 +103,18 @@ class Level:
 								)
 								
 							if col == 'p':
-								self.player = Player(
-									(x, y),
-									[self.visible_sprites],
-									self.obstacle_sprites,
-									self.create_attack,
-									self.destroy_attack,
-									self.create_magic
-								)
+								if self.round == 1:
+									self.player = Player(
+										(x, y),
+										[self.visible_sprites],
+										self.obstacle_sprites,
+										self.item_sprites,
+										self.create_attack,
+										self.destroy_attack,
+										self.create_magic
+									)
+								else:
+									self.player.goto_xy((x, y), [self.visible_sprites])
 
 							if col == 'o':
 								surf = graphics['objects'][21]
@@ -138,14 +158,23 @@ class Level:
 							Enemy(
 								monster_name, 
 								monster_type,
+								self.round,
 								(x, y), 
 								[self.visible_sprites, self.attackable_sprites], 
 								self.obstacle_sprites,
 								self.damage_player,
 								self.trigger_death_particles,
-								self.monster_count_down
+								self.monster_count_down,
+								self.drop_item,
+								self.add_exp
 							)
-							self.monster_count += 1
+
+	def map_upgrade(self):
+		self.map_size = self.map_size + (self.round // 5) * 5 # 5라운드마다 map_size 5 씩 증가
+		self.grass_count = self.grass_count + (self.round // 5) * 5 # 5라운드마다 grass 5 씩 증가
+		self.object_count = self.object_count + (self.round // 10) * 5 # 10라운드마다 오브젝트 5개씩 증가
+		self.entity_count = self.entity_count + (self.round // 3) * 2 # 3라운드마다 몬스터 3마리씩 증가
+
 
 	def create_attack(self):
 		self.current_attack = Weapon(
@@ -191,37 +220,104 @@ class Level:
 	def trigger_death_particles(self, pos, particle_type):
 		self.animation_player.create_particles(particle_type, pos, self.visible_sprites)
 
+	def add_exp(self, amount):
+		self.player.exp += amount
+
+	def toggle_menu(self):
+		self.game_paused = not self.game_paused
+
 	# setter
 	def monster_count_down(self):
 		self.monster_count -= 1
 
 	
 	def display_round(self):
-		if self.ticks < 180:
+		if self.round_ticks < 120:
 			self.ui.draw_round(self.round)
-			self.ticks += 1
+			self.round_ticks += 1
 
 	def reset_map(self):
-		boundary_list = make_boundary_list(50)
+		# self.visible_sprites = YSortCameraGroup() # 커스텀 그룹
+		# self.obstacle_sprites = pygame.sprite.Group() # 플레이어가 충돌할 수 있는 스프라이트 그룹
+
+		boundary_list = make_boundary_list(self.map_size)
 		list_to_csv(boundary_list, 'boundary')
-		grass_list = make_grass_list(self.monster_count, boundary_list)
+		grass_list = make_grass_list(self.map_size, self.grass_count, boundary_list)
 		list_to_csv(grass_list, 'grass')
-		object_list = make_object_list([0], self.grass_count, boundary_list, grass_list)
+		object_list = make_object_list(self.map_size, [0, 1, 2, 3, 4], self.object_count, boundary_list, grass_list)
 		list_to_csv(object_list, 'object')
-		entity_list = make_entity_list([390, 391, 393], self.entity_count, boundary_list, grass_list, object_list)
+		entity_list = make_entity_list(self.map_size, [390, 391, 393], self.entity_count, boundary_list, grass_list, object_list)
 		list_to_csv(entity_list, 'entities')	
+		self.monster_count = self.entity_count
+		print("맵 생성 완료")
 		
+	def check_remain_monster(self):
+		return self.monster_count
+
+	def update_stage(self):
+		if self.check_remain_monster() == 0:
+			self.round_ticks += 1
+			self.ui.draw_clear(6 - int(self.round_ticks / 60))
+			if self.round_ticks > 380:
+				self.create_map()
+				self.spawn_boss()
+
+	def get_player(self):
+		return self.player
+
+	def drop_item(self, pos: tuple):
+		"""
+		아이템 드롭률
+		LifePot : 20%
+		Medipack : 10%
+		WaterPot : 10%
+		"""
+		rate = randint(0, 100)
+
+		if rate < 10:
+			Item('waterpot', [self.visible_sprites, self.item_sprites], self.player, pos)
+		elif rate < 20:
+			Item('medipack', [self.visible_sprites, self.item_sprites], self.player, pos)
+		elif rate < 40:
+			Item('lifepot', [self.visible_sprites, self.item_sprites], self.player, pos)
+		else:
+			pass
+	
+	def spawn_boss(self):
+		if self.round % 5 == 0: # 5라운드마다 보스 소환
+			Enemy(
+				"raccoon", 
+				"unique",
+				self.round,
+				(((self.map_size - 1) // 2) * TILESIZE, ((self.map_size - 1) // 2) * TILESIZE), 
+				[self.visible_sprites, self.attackable_sprites], 
+				self.obstacle_sprites,
+				self.damage_player,
+				self.trigger_death_particles,
+				self.monster_count_down,
+				self.drop_item,
+				self.add_exp
+			)
+			self.monster_count += 1
 
 	def run(self):
 		# 배경 그리기
 		# self.visible_sprites.draw(self.display_surface)
-
-		self.visible_sprites.custom_draw(self.player)
-		self.visible_sprites.update()
-		self.visible_sprites.enemy_update(self.player)
-		self.player_attack_logic()
+		# self.draw_background()
+		self.visible_sprites.custom_draw(self.player, self.map_size)
 		self.ui.display(self.player, self.monster_count)
+
+		debug(str(self.map_size))
+
+		if self.game_paused:
+			self.upgrade.display()
+		else:
+			self.visible_sprites.update()
+			self.visible_sprites.enemy_update(self.player)
+			self.player_attack_logic()	
+		
 		self.display_round()
+		self.update_stage()
 		
 
 
@@ -234,13 +330,18 @@ class YSortCameraGroup(pygame.sprite.Group):
 		self.half_width = self.display_surface.get_size()[0] // 2
 		self.half_height = self.display_surface.get_size()[1] // 2
 		self.offset = pygame.math.Vector2()
+		self.background_img = pygame.image.load("resource/map/test.png")
+		self.background_rect = self.background_img.get_rect()
 
-	def custom_draw(self,player):
+	def custom_draw(self,player, mapsize):
 		# getting the offset 
 		self.offset.x = player.rect.centerx - self.half_width
 		self.offset.y = player.rect.centery - self.half_height
+		
+		back_offset_pos = self.background_rect.topleft - self.offset
+		# 배경그리기
+		self.display_surface.blit(self.background_img, back_offset_pos, Rect(0, 0, mapsize * TILESIZE, mapsize * TILESIZE))
 
-		# for sprite in self.sprites():
 		for sprite in sorted(self.sprites(),key = lambda sprite: sprite.rect.centery):
 			offset_pos = sprite.rect.topleft - self.offset
 			self.display_surface.blit(sprite.image,offset_pos)
