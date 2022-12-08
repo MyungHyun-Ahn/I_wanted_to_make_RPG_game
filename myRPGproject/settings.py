@@ -13,7 +13,8 @@ ENTITYCOUNT = 1
 # UI
 BAR_HEIGHT       = 20
 HEALTH_BAR_WIDTH = 200
-ENERGY_BAR_WIDHT = 140
+ENERGY_BAR_WIDHT = 200
+EXP_BAR_WIDHT    = 800
 ITEM_BOX_SIZE    = 80
 UI_FONT          = 'resource/graphics/font/joystix.ttf'
 UI_FONT_SIZE     = 18
@@ -27,6 +28,7 @@ TEXT_COLOR      = '#EEEEEE'
 # ui colors
 HEALTH_COLOR           = 'red'
 ENERGY_COLOR           = 'blue'
+EXP_COLOR              = 'yellow'
 UI_BORDER_COLOR_ACTIVE = 'gold'
 
 # upgrade menu

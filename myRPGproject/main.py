@@ -28,8 +28,6 @@ class Game:
                         self.level.toggle_menu()
 
             self.screen.fill('black')
-            # 디버그 왼쪽 상단에 메세지 출력
-            # debug('hello :)')
             self.level.run()
             pygame.display.update()
             self.clock.tick(FPS)

@@ -89,7 +89,7 @@ class Player(Entity):
         self.speed  = self.stats['speed']
         self.level = 1
         self.exp    = 0
-        self.level_up_exp = 100
+        self.level_up_exp = 500
         self.stat_point = 0
 
         # damage timer
@@ -325,6 +325,7 @@ class Player(Entity):
         if self.exp >= self.level_up_exp:
             self.exp -= self.level_up_exp
             self.level_up_exp *= 1.1
+            self.level_up_exp = int(self.level_up_exp)
             self.stat_point += 1
             self.level += 1
 
