@@ -74,4 +74,4 @@ def image_slicer(file_path):
 
 # image_slicer('tools/SpriteSheet.png')
 
-png_converter("tools/WaterPot.png", 'tools/output/final', 'WaterPot', 32)
+png_converter("tools/p_leaf_attack.png", 'tools/output/final', 'p_leaf_attack', 64)

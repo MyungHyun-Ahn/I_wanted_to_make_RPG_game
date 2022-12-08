@@ -32,10 +32,10 @@ class Level:
 		self.attackable_sprites = pygame.sprite.Group()
 
 		# map option 초기값
-		self.map_size = 20
-		self.grass_count = 5
-		self.object_count = 3
-		self.entity_count = 1
+		self.map_size = MAPSIZE
+		self.grass_count = GRASSCOUNT
+		self.object_count = OBJECTCOUNT
+		self.entity_count = ENTITYCOUNT
 
 		self.monster_count = self.entity_count
 
@@ -106,6 +106,7 @@ class Level:
 								if self.round == 1:
 									self.player = Player(
 										(x, y),
+										self.map_size,
 										[self.visible_sprites],
 										self.obstacle_sprites,
 										self.item_sprites,
@@ -115,6 +116,7 @@ class Level:
 									)
 								else:
 									self.player.goto_xy((x, y), [self.visible_sprites])
+									self.player.set_map_size(self.map_size)
 
 							if col == 'o':
 								surf = graphics['objects'][21]
@@ -159,6 +161,7 @@ class Level:
 								monster_name, 
 								monster_type,
 								self.round,
+								self.map_size,
 								(x, y), 
 								[self.visible_sprites, self.attackable_sprites], 
 								self.obstacle_sprites,
@@ -170,10 +173,10 @@ class Level:
 							)
 
 	def map_upgrade(self):
-		self.map_size = self.map_size + (self.round // 5) * 5 # 5라운드마다 map_size 5 씩 증가
-		self.grass_count = self.grass_count + (self.round // 5) * 5 # 5라운드마다 grass 5 씩 증가
-		self.object_count = self.object_count + (self.round // 10) * 5 # 10라운드마다 오브젝트 5개씩 증가
-		self.entity_count = self.entity_count + (self.round // 3) * 2 # 3라운드마다 몬스터 3마리씩 증가
+		self.map_size = MAPSIZE + (self.round // 5) * 5 # 5라운드마다 map_size 5 씩 증가
+		self.grass_count = GRASSCOUNT + (self.round // 5) * 5 # 5라운드마다 grass 5 씩 증가
+		self.object_count = OBJECTCOUNT + (self.round // 10) * 5 # 10라운드마다 오브젝트 5개씩 증가
+		self.entity_count = ENTITYCOUNT + (self.round // 3) * 2 # 3라운드마다 몬스터 3마리씩 증가
 
 
 	def create_attack(self):
@@ -188,6 +191,9 @@ class Level:
 
 		if style == 'flame':
 			self.magic_player.flame(self.player, cost, [self.visible_sprites, self.attack_sprites])
+
+		if style == 'p_leaf_attack':
+			self.magic_player.leaf_attack(self.player, cost, [self.visible_sprites, self.attack_sprites])
 
 	def destroy_attack(self):
 		if self.current_attack:
@@ -274,11 +280,11 @@ class Level:
 		"""
 		rate = randint(0, 100)
 
-		if rate < 10:
+		if rate < 60:
 			Item('waterpot', [self.visible_sprites, self.item_sprites], self.player, pos)
-		elif rate < 20:
+		elif rate < 80:
 			Item('medipack', [self.visible_sprites, self.item_sprites], self.player, pos)
-		elif rate < 40:
+		elif rate < 100:
 			Item('lifepot', [self.visible_sprites, self.item_sprites], self.player, pos)
 		else:
 			pass
@@ -289,6 +295,7 @@ class Level:
 				"raccoon", 
 				"unique",
 				self.round,
+				self.map_size,
 				(((self.map_size - 1) // 2) * TILESIZE, ((self.map_size - 1) // 2) * TILESIZE), 
 				[self.visible_sprites, self.attackable_sprites], 
 				self.obstacle_sprites,
@@ -306,8 +313,6 @@ class Level:
 		# self.draw_background()
 		self.visible_sprites.custom_draw(self.player, self.map_size)
 		self.ui.display(self.player, self.monster_count)
-
-		debug(str(self.map_size))
 
 		if self.game_paused:
 			self.upgrade.display()

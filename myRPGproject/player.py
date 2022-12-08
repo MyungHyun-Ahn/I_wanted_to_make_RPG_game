@@ -5,11 +5,11 @@ from debug import debug
 from entity import Entity
 from typing import Callable
 from item import Item
-
+from random import randint
 # pygame Sprite 클래스 상속
 class Player(Entity):
     # 생성자
-    def __init__(self, pos: tuple, groups: list, obstacle_sprites: pygame.sprite.Group, item_sprites: pygame.sprite.Group, create_attack: Callable, destroy_attack: Callable, create_magic: Callable) -> None:
+    def __init__(self, pos: tuple, map_size: int, groups: list, obstacle_sprites: pygame.sprite.Group, item_sprites: pygame.sprite.Group, create_attack: Callable, destroy_attack: Callable, create_magic: Callable) -> None:
         # 부모 클래스의 생성자를 먼저 로드
         super().__init__(groups)
         # .convert_alpha() : blit의 속도를 향상시킴
@@ -84,15 +84,20 @@ class Player(Entity):
             'speed'  : 100
         }
 
-        self.health = self.stats['health'] * 0.5
-        self.energy = self.stats['energy'] * 0.8
-        self.exp = 5000
-        self.speed = self.stats['speed']
+        self.health = self.stats['health']
+        self.energy = self.stats['energy']
+        self.speed  = self.stats['speed']
+        self.level = 1
+        self.exp    = 0
+        self.level_up_exp = 100
+        self.stat_point = 0
 
         # damage timer
         self.vulnerable = True
         self.hurt_time = None
         self.invulnerability_duration = 500
+
+        self.map_size = map_size
 
     def import_player_assets(self):
         charater_path = 'resource/graphics/player/'
@@ -177,7 +182,6 @@ class Player(Entity):
 
     def get_status(self):
         # idle status
-        debug("status : {}".format(self.status), x=250, y=10)
         if self.direction.x == 0 and self.direction.y == 0:
             if not 'idle' in self.status and not 'attack' in self.status:
                 self.status = self.status + '_idle'
@@ -312,11 +316,23 @@ class Player(Entity):
         super().__init__(groups)
         self.hitbox.x = xy[0]
         self.hitbox.y = xy[1]
- 
+
+    
+    def set_map_size(self, map_size: int) -> None:
+        self.map_size = map_size
+
+    def level_up(self):
+        if self.exp >= self.level_up_exp:
+            self.exp -= self.level_up_exp
+            self.level_up_exp *= 1.1
+            self.stat_point += 1
+            self.level += 1
+
     def update(self):
         self.input()
         self.cooldowns()
         self.get_status()
         self.animate()
+        self.out_map()
         self.move(self.speed)
         self.energy_recovery()

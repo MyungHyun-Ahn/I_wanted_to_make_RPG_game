@@ -124,8 +124,8 @@ class UI:
 
 
     def display(self, player: Player, monster_count: int):
-        self.show_bar(player.health, player.max_stats['health'], self.health_bar_rect, HEALTH_COLOR)
-        self.show_bar(player.energy, player.max_stats['energy'], self.energy_bar_rect, ENERGY_COLOR)
+        self.show_bar(player.health, player.stats['health'], self.health_bar_rect, HEALTH_COLOR)
+        self.show_bar(player.energy, player.stats['energy'], self.energy_bar_rect, ENERGY_COLOR)
 
         self.show_exp(player.exp)
 

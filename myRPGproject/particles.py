@@ -9,6 +9,7 @@ class AnimationPlayer:
 			'flame': import_folder('resource/graphics/particles/flame/frames'),
 			'aura': import_folder('resource/graphics/particles/aura'),
 			'heal': import_folder('resource/graphics/particles/heal/frames'),
+			'p_leaf_attack': import_folder('resource/graphics/particles/p_leaf_attack/frames'),
 			
 			# attacks 
 			'claw': import_folder('resource/graphics/particles/claw'),

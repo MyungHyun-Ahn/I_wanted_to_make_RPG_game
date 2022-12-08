@@ -4,6 +4,12 @@ HEIGTH   = 720
 FPS      = 60
 TILESIZE = 64
 
+# 게임 초기 세팅
+MAPSIZE = 15
+GRASSCOUNT = 5
+OBJECTCOUNT = 1
+ENTITYCOUNT = 1
+
 # UI
 BAR_HEIGHT       = 20
 HEALTH_BAR_WIDTH = 200
@@ -47,8 +53,9 @@ item_data = {
 
 # magic
 magic_data = {
-	'flame': {'strength': 5, 'cost': 20, 'graphic':'resource/graphics/particles/flame/fire.png'},
-	'heal' : {'strength': 20,'cost': 10, 'graphic':'resource/graphics/particles/heal/heal.png'}
+	'flame'         : {'strength': 5,  'cost': 20, 'graphic': 'resource/graphics/particles/flame/fire.png'},
+	'heal'          : {'strength': 20, 'cost': 10, 'graphic': 'resource/graphics/particles/heal/heal.png'},
+	'p_leaf_attack' : {'strength': 30, 'cost': 25, 'graphic': 'resource/graphics/particles/p_leaf_attack/p_leaf_attack.png'}
 }
 
 # enemy

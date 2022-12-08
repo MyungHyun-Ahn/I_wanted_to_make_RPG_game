@@ -6,7 +6,7 @@ from support import *
 from typing import Callable
 
 class Enemy(Entity):
-    def __init__(self, monster_name: str, monster_type: str, game_round: int, pos: tuple, groups: list, obstacle_sprites: pygame.sprite.Group, damage_player: Callable, trigger_death_particles: Callable, monster_count_down: Callable, drop_item: Callable, add_exp: Callable) -> None:
+    def __init__(self, monster_name: str, monster_type: str, game_round: int, map_size: int, pos: tuple, groups: list, obstacle_sprites: pygame.sprite.Group, damage_player: Callable, trigger_death_particles: Callable, monster_count_down: Callable, drop_item: Callable, add_exp: Callable) -> None:
         # general setup
         super().__init__(groups)
         self.sprite_type = 'enemy'
@@ -51,6 +51,7 @@ class Enemy(Entity):
         self.invincibility_duration = 300
 
         self.drop_item = drop_item
+        self.map_size = map_size
         
     def import_graphics(self, name: str):
         if self.monster_type == 'normal':
@@ -174,8 +175,11 @@ class Enemy(Entity):
             self.direction *= -self.resistance
 
 
+
     def update(self):
+        # print(self.hitbox.x, self.hitbox.y)
         self.hit_reaction()
+        self.out_map()
         self.move(self.speed)
         self.animate()
         self.cooldown()
