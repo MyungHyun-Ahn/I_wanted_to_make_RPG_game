@@ -13,8 +13,8 @@ class Upgrade:
         self.font = pygame.font.Font(UI_FONT, UI_FONT_SIZE)
 
         # upgrade menu
-        self.height = self.display_surface.get_size()[1] * 0.8
-        self.width = self.display_surface.get_size()[0] // 6
+        self.height = (self.display_surface.get_size()[1] - 200)// 6
+        self.width = self.display_surface.get_size()[0] * 0.6
         self.create_items()
         
         # selection system
@@ -26,11 +26,11 @@ class Upgrade:
         keys = pygame.key.get_pressed()
 
         if self.can_move:
-            if keys[pygame.K_RIGHT] and self.selection_index < self.attribute_nr - 1:
+            if keys[pygame.K_DOWN] and self.selection_index < self.attribute_nr - 1:
                 self.selection_index += 1
                 self.can_move = False
                 self.selection_time = pygame.time.get_ticks()
-            elif keys[pygame.K_LEFT] and self.selection_index >= 1:
+            elif keys[pygame.K_UP] and self.selection_index >= 1:
                 self.selection_index -= 1
                 self.can_move = False
                 self.selection_time = pygame.time.get_ticks()
@@ -51,28 +51,54 @@ class Upgrade:
 
         for item, index in enumerate(range(self.attribute_nr)):
             # horizontal position
-            full_width = self.display_surface.get_size()[0]
-            increment = full_width // self.attribute_nr
-            left = (item * increment) + (increment - self.width) // 2
+            full_height = self.display_surface.get_size()[1] - 200
+            increment = full_height // self.attribute_nr
+            top = (item * increment) + (increment - self.height) // 2 + 100
 
             # vertical position
-            top = self.display_surface.get_size()[1] * 0.1
+            left = self.display_surface.get_size()[0] * 0.2
 
             # create the object
             item = UpgradeMenu(left, top, self.width, self.height, index, self.font)
             self.item_list.append(item)
 
+    def display_main(self):
+        font1 = pygame.font.Font(UI_FONT, 25)
+        title_rect = pygame.Rect(580, 20, 150, 80)
+
+
+        pygame.draw.rect(self.display_surface, UI_BG_COLOR, title_rect)
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, title_rect, 4)
+
+        title_surf = font1.render('status', False, TEXT_COLOR)
+        title_rect = title_surf.get_rect(center = title_rect.center)
+        self.display_surface.blit(title_surf, title_rect)
+
+        font2 = pygame.font.Font(UI_FONT, 10)
+        stat_point_rect = pygame.Rect(self.display_surface.get_size()[0] - 405, self.display_surface.get_size()[1] - 100, 150, 60)
+
+        pygame.draw.rect(self.display_surface, UI_BG_COLOR, stat_point_rect)
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, stat_point_rect, 4)
+
+        stat_point_surf = font2.render('stat point : {}'.format(self.player.stat_point), False, TEXT_COLOR)
+        stat_point_rect = stat_point_surf.get_rect(center = stat_point_rect.center)
+        self.display_surface.blit(stat_point_surf, stat_point_rect)
+
+
+
+
     def display(self):
         self.input()
         self.selection_cooldown()
 
+        self.display_main()
+
         for index, item in enumerate(self.item_list):
             # get attributes
             name = self.attribute_names[index]
-            value = self.player.get_value_by_index(index)
-            max_value = self.max_values[index]
-            cost = self.player.get_cost_by_index(index)
-            item.display(self.display_surface,self.selection_index,name,value,max_value,cost)
+            stat = self.player.stats[name]
+            rate = self.player.upgrade_rate[name]
+            item.display(self.display_surface,self.selection_index,name, rate, stat)
 
 
 class UpgradeMenu:
@@ -80,21 +106,23 @@ class UpgradeMenu:
         self.rect = pygame.Rect(l, t, w, h)
         self.index = index
         self.font = font
+        self.w = w
+        self.h = h
 
-    def display_names(self, surface, name, cost, selected):
+    def display_names(self, surface, name, stat, rate, selected):
         color = TEXT_COLOR_SELECTED if selected else TEXT_COLOR
 
         # title
-        title_surf = self.font.render(name, False, color)
-        title_rect = title_surf.get_rect(midtop = self.rect.midtop + pygame.math.Vector2(0, 20))
+        title_surf = self.font.render('{} : {}'.format(name, stat), False, color)
+        title_rect = title_surf.get_rect(midleft = self.rect.midleft + pygame.math.Vector2(20, 0))
 
         # cost
-        cost_surf = self.font.render(''.format(int(cost)), False, color)
-        cost_rect = cost_surf.get_rect(midbottom = self.rect.midbottom - pygame.math.Vector2(0, 20))
+        rate_surf = self.font.render('+{}'.format(rate), False, color)
+        rate_rect = rate_surf.get_rect(midright = self.rect.midright - pygame.math.Vector2(40, 0))
 
         # draw
         surface.blit(title_surf, title_rect)
-        surface.blit(cost_surf, cost_rect)
+        surface.blit(rate_surf, rate_rect)
 
     def display_bar(self, surface, value, max_value, selected):
         # drawing setup
@@ -114,15 +142,14 @@ class UpgradeMenu:
     def trigger(self, player: Player):
         upgrade_attribute = list(player.stats.keys())[self.index]
 
-        if player.exp >= player.upgrade_cost[upgrade_attribute] and player.stats[upgrade_attribute] < player.max_stats[upgrade_attribute]:
-            player.exp -= player.upgrade_cost[upgrade_attribute]
-            player.stats[upgrade_attribute] *= 1.2
-            player.upgrade_cost[upgrade_attribute] *= 1.4
+        if player.stat_point >= 1 and player.stats[upgrade_attribute] < player.max_stats[upgrade_attribute]:
+            player.stat_point -= 1
+            player.stats[upgrade_attribute] += player.upgrade_rate[upgrade_attribute]
 
         if player.stats[upgrade_attribute] > player.max_stats[upgrade_attribute]:
             player.stats[upgrade_attribute] = player.max_stats[upgrade_attribute]
 
-    def display(self, surface, selection_num, name, value, max_value, cost):
+    def display(self, surface, selection_num, name, rate, stat):
         if self.index == selection_num:
             pygame.draw.rect(surface, UPGRADE_BG_COLOR_SELECTED, self.rect)
             pygame.draw.rect(surface, UI_BORDER_COLOR, self.rect, 4)
@@ -130,6 +157,5 @@ class UpgradeMenu:
             pygame.draw.rect(surface, UI_BG_COLOR, self.rect)
             pygame.draw.rect(surface, UI_BORDER_COLOR, self.rect, 4)
         
-        self.display_names(surface, name, cost, self.index == selection_num)
-        self.display_bar(surface, value, max_value, self.index == selection_num)
+        self.display_names(surface, name, stat, rate, self.index == selection_num)
 

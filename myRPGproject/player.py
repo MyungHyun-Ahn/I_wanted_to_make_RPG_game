@@ -76,12 +76,12 @@ class Player(Entity):
             'speed'  : 10
         }
 
-        self.upgrade_cost = {
-            'health' : 100,
-            'energy' : 100,
-            'attack' : 100,
-            'magic'  : 100,
-            'speed'  : 100
+        self.upgrade_rate = {
+            'health' : 10,
+            'energy' : 10,
+            'attack' : 5,
+            'magic'  : 5,
+            'speed'  : 3
         }
 
         self.health = self.stats['health']
@@ -326,7 +326,7 @@ class Player(Entity):
             self.exp -= self.level_up_exp
             self.level_up_exp *= 1.1
             self.level_up_exp = int(self.level_up_exp)
-            self.stat_point += 1
+            self.stat_point += 3
             self.level += 1
 
     def update(self):
@@ -335,5 +335,6 @@ class Player(Entity):
         self.get_status()
         self.animate()
         self.out_map()
+        self.level_up()
         self.move(self.speed)
         self.energy_recovery()

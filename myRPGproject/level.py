@@ -281,11 +281,11 @@ class Level:
 		rate = randint(0, 100)
 
 		if rate < 60:
-			Item('waterpot', [self.visible_sprites, self.item_sprites], self.player, pos)
+			Item('waterpot', self.animation_player, [self.visible_sprites, self.item_sprites], [self.visible_sprites], self.player, pos)
 		elif rate < 80:
-			Item('medipack', [self.visible_sprites, self.item_sprites], self.player, pos)
+			Item('medipack', self.animation_player, [self.visible_sprites, self.item_sprites], [self.visible_sprites], self.player, pos)
 		elif rate < 100:
-			Item('lifepot', [self.visible_sprites, self.item_sprites], self.player, pos)
+			Item('lifepot', self.animation_player, [self.visible_sprites, self.item_sprites], [self.visible_sprites], self.player, pos)
 		else:
 			pass
 	
