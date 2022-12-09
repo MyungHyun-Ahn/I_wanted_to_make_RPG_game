@@ -63,30 +63,26 @@ class UI:
         self.display_surface.blit(text_surf, text_rect)
         pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, text_rect.inflate(20, 20), 3)
 
-    def selection_box(self, left, top, has_switched):
+    def selection_box(self, left, top):
         bg_rect = pygame.Rect(left, top, ITEM_BOX_SIZE, ITEM_BOX_SIZE)
         pygame.draw.rect(self.display_surface, UI_BG_COLOR, bg_rect)
-
-        if has_switched:
-            pygame.draw.rect(self.display_surface, UI_BORDER_COLOR_ACTIVE, bg_rect, 3)
-        else:
-            pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, bg_rect, 3)
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, bg_rect, 3)
 
         return bg_rect
 
-    def weapon_overlay(self, weapon_index, has_switched):
-        bg_rect = self.selection_box(10, 630, has_switched)
+    def weapon_overlay(self, weapon_index):
+        bg_rect = self.selection_box(10, 600)
         weapon_surf = self.weapon_grahics[weapon_index]
         weapon_rect = weapon_surf.get_rect(center = bg_rect.center)
 
         self.display_surface.blit(weapon_surf, weapon_rect)
 
-    def magic_overlay(self, magic_index, has_switched):
-        bg_rect = self.selection_box(80, 635, has_switched)
-        magic_surf = self.magic_graphics[magic_index]
-        magic_rect = magic_surf.get_rect(center = bg_rect.center)
-
-        self.display_surface.blit(magic_surf, magic_rect)
+    def magic_overlay(self):
+        for i in range(4):
+            bg_rect = self.selection_box(100 + i * 90, 600)
+            magic_surf = self.magic_graphics[i]
+            magic_rect = magic_surf.get_rect(center = bg_rect.center)
+            self.display_surface.blit(magic_surf, magic_rect)
 
     def monster_count(self, monster_count):
         text_surf = self.font.render("remaining monsters : {}".format(monster_count), False, TEXT_COLOR)
@@ -146,5 +142,5 @@ class UI:
 
         self.monster_count(monster_count)
         
-        self.weapon_overlay(player.weapon_index, not player.can_switch_weapon)
-        self.magic_overlay(player.magic_index, not player.can_switch_magic)
+        self.weapon_overlay(player.weapon_index)
+        self.magic_overlay()

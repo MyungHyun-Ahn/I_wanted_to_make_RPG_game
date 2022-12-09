@@ -58,9 +58,9 @@ def horizontal_slice(image_path, outdir, slice_size, num):
         count += 1
 
 
-def png_converter(image_path, outdir, out_name, px):
+def png_size_converter(image_path, outdir, out_name, px, py):
     img = Image.open(image_path)
-    img = img.resize((px, px))
+    img = img.resize((px, py))
     output = "{}/{}.png".format(outdir, out_name)
     img.save(output)
 
@@ -72,6 +72,21 @@ def image_slicer(file_path):
         horizontal_slice('tools/output/intermediate/{}.png'.format(i), 'tools/output/final', 16, i) # 최종파일 가로로 자르기
 
 
+def weapon_img_converter(image_path, outdir):
+    img = Image.open(image_path)
+    for i in range(4):
+        if i != 0:
+            img = img.transpose(Image.ROTATE_90)
+        output = "{}/{}.png".format(outdir, i)
+        img.save(output)
+
+
 # image_slicer('tools/SpriteSheet.png')
 
-png_converter("tools/4.png", 'tools/output/final', 'p_thunder', 64)
+png_size_converter("tools/Club/0.png", 'tools/Club', 'c0', 32, 14 * 4)
+png_size_converter("tools/Club/1.png", 'tools/Club', 'c1', 32, 14 * 4)
+
+weapon_img_converter("tools/Club/c1.png", 'tools/Club/final')
+
+
+

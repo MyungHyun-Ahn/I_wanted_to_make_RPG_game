@@ -39,11 +39,12 @@ UPGRADE_BG_COLOR_SELECTED = '#EEEEEE'
 
 # weapon
 weapon_data = {
-	'sword' : {'cooldown': 100, 'damage': 15, 'graphic': 'resource/graphics/weapons/sword/full.png'},
-	'lance' : {'cooldown': 400, 'damage': 30, 'graphic': 'resource/graphics/weapons/lance/full.png'},
-	'axe'   : {'cooldown': 300, 'damage': 20, 'graphic': 'resource/graphics/weapons/axe/full.png'},
-	'rapier': {'cooldown': 50,  'damage': 8,  'graphic': 'resource/graphics/weapons/rapier/full.png'},
-	'sai'   : {'cooldown': 80,  'damage': 10, 'graphic': 'resource/graphics/weapons/sai/full.png'}
+	'sword' : {'cooldown': 200, 'damage': 20, 'graphic': 'resource/graphics/weapons/sword/full.png'},
+	'lance' : {'cooldown': 1000, 'damage': 80, 'graphic': 'resource/graphics/weapons/lance/full.png'},
+	'axe'   : {'cooldown': 600, 'damage': 40, 'graphic': 'resource/graphics/weapons/axe/full.png'},
+	'rapier': {'cooldown': 60,  'damage': 10, 'graphic': 'resource/graphics/weapons/rapier/full.png'},
+	'sai'   : {'cooldown': 160,  'damage': 25, 'graphic': 'resource/graphics/weapons/sai/full.png'},
+	'club'  : {'cooldown': 1200, 'damage': 90, 'graphic': 'resource/graphics/weapons/club/full.png'}
 }
 
 # item
@@ -56,8 +57,9 @@ item_data = {
 # magic
 magic_data = {
 	'flame'         : {'strength': 5,  'cost': 20, 'graphic': 'resource/graphics/particles/flame/fire.png'},
-	'heal'          : {'strength': 20, 'cost': 10, 'graphic': 'resource/graphics/particles/heal/heal.png'},
-	'p_leaf_attack' : {'strength': 30, 'cost': 25, 'graphic': 'resource/graphics/particles/p_leaf_attack/p_leaf_attack.png'}
+	'p_thunder'     : {'strength': 20, 'cost': 30, 'graphic': 'resource/graphics/particles/p_thunder/p_thunder.png'},
+	'p_leaf_attack' : {'strength': 15, 'cost': 25, 'graphic': 'resource/graphics/particles/p_leaf_attack/p_leaf_attack.png'},
+	'heal'          : {'strength': 20, 'cost': 10, 'graphic': 'resource/graphics/particles/heal/heal.png'}
 }
 
 # enemy

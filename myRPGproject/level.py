@@ -169,7 +169,8 @@ class Level:
 								self.trigger_death_particles,
 								self.monster_count_down,
 								self.drop_item,
-								self.add_exp
+								self.add_exp,
+								self.drop_weapon
 							)
 
 	def map_upgrade(self):
@@ -194,6 +195,10 @@ class Level:
 
 		if style == 'p_leaf_attack':
 			self.magic_player.leaf_attack(self.player, cost, [self.visible_sprites, self.attack_sprites])
+
+		if style == 'p_thunder':
+			self.magic_player.thunder(self.player, cost, [self.visible_sprites, self.attack_sprites])
+
 
 	def destroy_attack(self):
 		if self.current_attack:
@@ -281,16 +286,28 @@ class Level:
 		rate = randint(0, 100)
 
 		if rate < 60:
-			Item('waterpot', self.animation_player, [self.visible_sprites, self.item_sprites], [self.visible_sprites], self.player, pos)
+			Item('waterpot', 'item', animation_player = self.animation_player, groups = [self.visible_sprites, self.item_sprites], groups2 = [self.visible_sprites], player = self.player, pos = pos)
 		elif rate < 80:
-			Item('medipack', self.animation_player, [self.visible_sprites, self.item_sprites], [self.visible_sprites], self.player, pos)
+			Item('medipack', 'item', animation_player = self.animation_player, groups = [self.visible_sprites, self.item_sprites], groups2 = [self.visible_sprites], player = self.player, pos = pos)
 		elif rate < 100:
-			Item('lifepot', self.animation_player, [self.visible_sprites, self.item_sprites], [self.visible_sprites], self.player, pos)
+			Item('lifepot', 'item', animation_player = self.animation_player, groups = [self.visible_sprites, self.item_sprites], groups2 = [self.visible_sprites], player = self.player, pos = pos)
 		else:
 			pass
+
+	def drop_weapon(self, pos: tuple):
+		"""
+		보스 처치시 무기 드롭
+		획득시 자동 변경
+		"""
+		weapon_index = choice(range(len(weapon_data.keys())))
+		print(weapon_index)
+		Item(weapon_index, 'weapon', groups = [self.visible_sprites, self.item_sprites], player = self.player, pos = pos)
+
+
+		
 	
 	def spawn_boss(self):
-		if self.round % 5 == 0: # 5라운드마다 보스 소환
+		if self.round % 1 == 0: # 5라운드마다 보스 소환
 			Enemy(
 				"raccoon", 
 				"unique",
@@ -303,7 +320,8 @@ class Level:
 				self.trigger_death_particles,
 				self.monster_count_down,
 				self.drop_item,
-				self.add_exp
+				self.add_exp,
+				self.drop_weapon
 			)
 			self.monster_count += 1
 
