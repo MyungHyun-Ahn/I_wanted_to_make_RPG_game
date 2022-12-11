@@ -8,7 +8,7 @@ TILESIZE = 64
 MAPSIZE = 15
 GRASSCOUNT = 5
 OBJECTCOUNT = 1
-ENTITYCOUNT = 3
+ENTITYCOUNT = 1
 
 # UI
 BAR_HEIGHT       = 20
@@ -64,8 +64,19 @@ magic_data = {
 
 # enemy
 monster_data = {
-	'squid'  : {'health': 100, 'exp': 100, 'damage': 20, 'attack_type': 'slash',       'attack_sound': '../audio/attack/slash.wav'   , 'speed': 3, 'resistance': 3, 'attack_radius': 80,  'notice_radius': 360},
-	'raccoon': {'health': 300, 'exp': 250, 'damage': 40, 'attack_type': 'claw',        'attack_sound': '../audio/attack/claw.wav'    , 'speed': 2, 'resistance': 3, 'attack_radius': 120, 'notice_radius': 400},
-	'spirit' : {'health': 100, 'exp': 110, 'damage': 8,  'attack_type': 'thunder',     'attack_sound': '../audio/attack/fireball.wav', 'speed': 4, 'resistance': 3, 'attack_radius': 60,  'notice_radius': 350},
-	'bamboo' : {'health': 70,  'exp': 120, 'damage': 6,  'attack_type': 'leaf_attack', 'attack_sound': '../audio/attack/slash.wav'   , 'speed': 3, 'resistance': 3, 'attack_radius': 50,  'notice_radius': 300}
+	# normal
+	'squid'        : {'health': 100,  'exp': 100, 'damage': 20,  'attack_type': 'slash',       'attack_sound': 'resource/audio/attack/slash.wav'   , 'speed': 3, 'resistance': 3, 'attack_radius': 80,  'notice_radius': 360},
+	'spirit'       : {'health': 100,  'exp': 110, 'damage': 8,   'attack_type': 'thunder',     'attack_sound': 'resource/audio/attack/fireball.wav', 'speed': 4, 'resistance': 3, 'attack_radius': 60,  'notice_radius': 350},
+	'bamboo'       : {'health': 70,   'exp': 120, 'damage': 6,   'attack_type': 'leaf_attack', 'attack_sound': 'resource/audio/attack/slash.wav'   , 'speed': 3, 'resistance': 3, 'attack_radius': 50,  'notice_radius': 300},
+	'cyclope'      : {'health': 120,  'exp': 150, 'damage': 12,  'attack_type': 'rock',        'attack_sound': 'resource/audio/attack/slash.wav'   , 'speed': 5, 'resistance': 3, 'attack_radius': 50,  'notice_radius': 600},
+	'greencyclope' : {'health': 100,  'exp': 120, 'damage': 10,  'attack_type': 'rock',        'attack_sound': 'resource/audio/attack/slash.wav'   , 'speed': 5, 'resistance': 3, 'attack_radius': 50,  'notice_radius': 600},
+
+	# boss
+	'raccoon'      : {'health': 600, 'exp': 700, 'damage': 40, 'attack_type': 'claw',        'attack_sound': 'resource/audio/attack/claw.wav'    , 'speed': 2, 'resistance': 3, 'attack_radius': 120, 'notice_radius': 400},
+	'redraccoon'   : {'health': 800, 'exp': 800, 'damage': 50, 'attack_type': 'claw',        'attack_sound': 'resource/audio/attack/claw.wav'    , 'speed': 2, 'resistance': 3, 'attack_radius': 120, 'notice_radius': 400},
+	'giantflam'    : {'health': 900, 'exp': 1000, 'damage': 40, 'attack_type': 'flam',       'attack_sound': 'resource/audio/attack/claw.wav'    , 'speed': 3, 'resistance': 3, 'attack_radius': 150, 'notice_radius': 600},
+	'frog'         : {'health': 400, 'exp': 400, 'damage': 40, 'attack_type': 'smoke',       'attack_sound': 'resource/audio/attack/claw.wav'    , 'speed': 4, 'resistance': 3, 'attack_radius': 180, 'notice_radius': 800},
 }
+
+normal_monster_name = ['squid', 'spirit', 'bamboo', 'cyclope']
+boss_monster_name = ['raccoon', 'redraccoon', 'giantflam', 'frog']

@@ -10,6 +10,11 @@ class Item(pygame.sprite.Sprite):
         self.pos = pos
         self.item_type = item_type
 
+        self.item_sound = pygame.mixer.Sound('resource/audio/Bonus.wav')
+        self.weapon_sound = pygame.mixer.Sound('resource/audio/Success1.wav')
+        self.item_sound.set_volume(0.4)
+        self.weapon_sound.set_volume(0.4)
+
         if self.item_type == 'item':
             self.item_name = item_name
             self.image = pygame.image.load(item_data[self.item_name]['graphic']).convert_alpha()

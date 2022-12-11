@@ -131,6 +131,20 @@ class UI:
         self.display_surface.blit(text_surf2, text_rect2)
         pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, text_rect2.inflate(20, 20), 3)
 
+    def draw_game_over(self):
+        font = pygame.font.Font(UI_FONT, 60)
+
+        text_surf = font.render("game over", False, TEXT_COLOR)
+
+        x = 640
+        y = 360
+
+        text_rect = text_surf.get_rect(center = (x, y))
+
+        pygame.draw.rect(self.display_surface, UI_BG_COLOR, text_rect.inflate(20, 20))
+        self.display_surface.blit(text_surf, text_rect)
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, text_rect.inflate(20, 20), 3)
+
 
     def display(self, player: Player, monster_count: int):
         self.show_bar(player.health, player.stats['health'], self.health_bar_rect, HEALTH_COLOR)

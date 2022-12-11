@@ -109,6 +109,12 @@ class UpgradeMenu:
         self.w = w
         self.h = h
 
+        self.sounds = {
+            'success' : pygame.mixer.Sound('resource/audio/Accept.wav'),
+            'failure' : pygame.mixer.Sound('resource/audio/Cancel.wav'),
+        }
+
+
     def display_names(self, surface, name, stat, rate, selected):
         color = TEXT_COLOR_SELECTED if selected else TEXT_COLOR
 
@@ -143,8 +149,11 @@ class UpgradeMenu:
         upgrade_attribute = list(player.stats.keys())[self.index]
 
         if player.stat_point >= 1 and player.stats[upgrade_attribute] < player.max_stats[upgrade_attribute]:
+            self.sounds['success'].play() # 스텟 업그레이드 성공시 재생
             player.stat_point -= 1
             player.stats[upgrade_attribute] += player.upgrade_rate[upgrade_attribute]
+        else:
+            self.sounds['failure'].play() # 실패시 재생
 
         if player.stats[upgrade_attribute] > player.max_stats[upgrade_attribute]:
             player.stats[upgrade_attribute] = player.max_stats[upgrade_attribute]

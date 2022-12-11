@@ -18,12 +18,20 @@ class AnimationPlayer:
 			'sparkle': import_folder('resource/graphics/particles/sparkle'),
 			'leaf_attack': import_folder('resource/graphics/particles/leaf_attack'),
 			'thunder': import_folder('resource/graphics/particles/thunder'),
+			'smoke': import_folder('resource/graphics/particles/smoke'),
+			'flam': import_folder('resource/graphics/particles/flam'),
+			'rock': import_folder('resource/graphics/particles/rock'),
 
-			# monster deaths
+			# monster deaths redraccoon
 			'squid': import_folder('resource/graphics/particles/smoke_orange'),
 			'raccoon': import_folder('resource/graphics/particles/raccoon'),
+			'redraccoon': import_folder('resource/graphics/particles/redraccoon'),
 			'spirit': import_folder('resource/graphics/particles/nova'),
 			'bamboo': import_folder('resource/graphics/particles/bamboo'),
+			'giantflam': import_folder('resource/graphics/particles/giantflam'),
+			'frog': import_folder('resource/graphics/particles/frog'),
+			'cyclope': import_folder('resource/graphics/particles/cyclope'),
+			'greencyclope': import_folder('resource/graphics/particles/greencyclope'),
 			
 			# leafs 
 			'leaf': (

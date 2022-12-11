@@ -43,8 +43,8 @@ def horizontal_slice(image_path, outdir, slice_size, num):
         bbox = (left, upper, right, height)
         working_slice = img.crop(bbox)
         size = working_slice.size
-        working_slice = working_slice.resize((size[0] * 4, size[1] * 4))
-        print((size[0] * 4, size[1] * 4))
+        working_slice = working_slice.resize((64, 64))
+        print((64, 64))
         left += slice_size
         if count == 1:
             output = "{}/down/{}.png".format(outdir, num)
@@ -57,6 +57,32 @@ def horizontal_slice(image_path, outdir, slice_size, num):
         working_slice.save(output)
         count += 1
 
+
+def boss_horizontal_slice(image_path, outdir, slice_size):
+    img = Image.open(image_path)
+    width, height = img.size
+    upper = 0
+    left = 0
+    slices = int(math.ceil(width/slice_size))
+    print(width, height)
+    print(slices)
+    count = 1
+    num = 0
+    for slice in range(slices):
+        if count == slices:
+            right = width
+        else:
+            right = int(count * slice_size)  
+        bbox = (left, upper, right, height)
+        working_slice = img.crop(bbox)
+        size = working_slice.size
+        working_slice = working_slice.resize((64, 64))
+        left += slice_size
+        
+        output = "{}/{}.png".format(outdir, num)
+        num += 1
+        working_slice.save(output)
+        count += 1
 
 def png_size_converter(image_path, outdir, out_name, px, py):
     img = Image.open(image_path)
@@ -83,10 +109,15 @@ def weapon_img_converter(image_path, outdir):
 
 # image_slicer('tools/SpriteSheet.png')
 
-png_size_converter("tools/Club/0.png", 'tools/Club', 'c0', 32, 14 * 4)
-png_size_converter("tools/Club/1.png", 'tools/Club', 'c1', 32, 14 * 4)
-
-weapon_img_converter("tools/Club/c1.png", 'tools/Club/final')
 
 
+# weapon_img_converter("tools/Club/c1.png", 'tools/Club/final')
 
+
+# boss_horizontal_slice("tools/monster/SpriteSheet.png", "tools/monster/attack", 30)
+ 
+
+vertical_slice("tools/monster/SpriteSheet.png", "tools/monster/mid", 16)
+14
+for i in range(4):
+    horizontal_slice("tools/monster/mid/{}.png".format(i), "tools/monster", 16, i)

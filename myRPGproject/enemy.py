@@ -11,6 +11,7 @@ class Enemy(Entity):
         super().__init__(groups)
         self.sprite_type = 'enemy'
         self.monster_type  = monster_type
+        self.display_surface = pygame.display.get_surface()
 
         # graphics setup
         self.import_graphics(monster_name)
@@ -25,10 +26,11 @@ class Enemy(Entity):
         # stats
         self.monster_name  = monster_name
         monster_info       = monster_data[self.monster_name]
-        self.health        = monster_info['health'] + monster_info['health'] * (game_round / 10)
-        self.exp           = monster_info['exp'] + monster_info['exp'] * (game_round / 10)
+        self.health        = monster_info['health'] + monster_info['health'] * (game_round / 5)
+        self.max_health = self.health
+        self.exp           = monster_info['exp'] + monster_info['exp'] * (game_round / 5)
         self.speed         = monster_info['speed']
-        self.attack_damage = monster_info['damage'] + monster_info['damage'] * (game_round / 10)
+        self.attack_damage = monster_info['damage'] + monster_info['damage'] * (game_round / 5)
         self.resistance    = monster_info['resistance']
         self.attack_radius = monster_info['attack_radius']
         self.notice_radius = monster_info['notice_radius']
@@ -53,6 +55,14 @@ class Enemy(Entity):
         self.drop_item = drop_item
         self.drop_weapon = drop_weapon
         self.map_size = map_size
+
+        # sounds
+        self.death_sound = pygame.mixer.Sound('resource/audio/death.wav')
+        self.hit_sound = pygame.mixer.Sound('resource/audio/hit.wav')
+        self.attack_sound = pygame.mixer.Sound(monster_info['attack_sound'])
+        self.death_sound.set_volume(0.6)
+        self.hit_sound.set_volume(0.6)
+        self.attack_sound.set_volume(0.6)
         
     def import_graphics(self, name: str):
         if self.monster_type == 'normal':
@@ -120,6 +130,7 @@ class Enemy(Entity):
         if self.status == 'attack':
             self.attack_time = pygame.time.get_ticks()
             self.damage_player(self.attack_damage, self.attack_type)
+            self.attack_sound.play()
         elif self.status == 'up' or self.status == 'down' or self.status == 'right' or self.status == 'left' or self.status == 'move':
             self.direction = self.get_player_distance_direction(player)[1]
         else:
@@ -155,6 +166,7 @@ class Enemy(Entity):
 
     def get_damage(self, player: Player, attack_type: str):
         if self.vulnerable:
+            self.hit_sound.play()
             self.direction = self.get_player_distance_direction(player)[1]
             if attack_type == 'weapon':
                 self.health -= player.get_full_weapon_damage()
@@ -167,6 +179,7 @@ class Enemy(Entity):
         if self.health <= 0:
             self.kill()
             self.trigger_death_particles(self.rect.center, self.monster_name)
+            self.death_sound.play()
             self.monster_count_down()
             if self.monster_type == 'normal':
                 self.drop_item(self.rect.center)
@@ -178,6 +191,26 @@ class Enemy(Entity):
         if not self.vulnerable:
             self.direction *= -self.resistance
 
+    def health_ui(self, pos):
+        # show_bar(self, current, max_amount, bg_rect, color):
+        # draw bg
+        x = pos[0]
+        y = pos[1] - 10
+        if self.monster_type == 'normal':
+            bg_rect = pygame.Rect(x, y, 64, 10)
+        else:
+            bg_rect = pygame.Rect(x, y, 240, 20)
+        pygame.draw.rect(self.display_surface, UI_BG_COLOR, bg_rect)
+
+        # converting stat to pixel
+        ratio = self.health / self.max_health
+        current_width = bg_rect.width * ratio
+        current_rect = bg_rect.copy()
+        current_rect.width = current_width
+
+        # drawing the bar
+        pygame.draw.rect(self.display_surface, 'red', current_rect)
+        pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, bg_rect, 3)
 
 
     def update(self):
@@ -189,7 +222,8 @@ class Enemy(Entity):
         self.cooldown()
         self.check_death()
 
-    def enemy_update(self, player: Player) -> None:
+    def enemy_update(self, player: Player, pos) -> None:
         self.get_status(player)
         self.actions(player)
+        self.health_ui(pos)
 

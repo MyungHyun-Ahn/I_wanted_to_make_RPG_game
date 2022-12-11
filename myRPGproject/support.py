@@ -92,7 +92,7 @@ boundary_list : 장애물 맵
 391 : sprit
 393 : squid
 """
-def make_entity_list(size: int, monster_list: list, monster_num: int, boundary_list: list, grass_list: list, object_list: list) -> list:
+def make_entity_list(size: int, monster_num: int, boundary_list: list, grass_list: list, object_list: list) -> list:
     entity_list = [[-1] * size for _ in range(size)]
 
     count = 0
@@ -104,7 +104,7 @@ def make_entity_list(size: int, monster_list: list, monster_num: int, boundary_l
         if boundary_list[random_y][random_x] != -1 or grass_list[random_y][random_x] != -1 or object_list[random_y][random_x] != -1 or entity_list[random_y][random_x] != -1:
             continue
         else:
-            entity_list[random_y][random_x] = choice(monster_list)
+            entity_list[random_y][random_x] = 'm'
             count += 1
         
         if count == monster_num:

@@ -13,6 +13,7 @@ from enemy import Enemy
 from particles import AnimationPlayer
 from magic import MagicPlayer
 from upgrade import Upgrade
+import time
 
 class Level:
 	def __init__(self):
@@ -64,9 +65,12 @@ class Level:
 		self.map_upgrade()
 		self.reset_map()
 		
+		# 스프라이트 그룹을 비움
 		self.visible_sprites.empty()
 		self.obstacle_sprites.empty()
 		self.item_sprites.empty()
+		self.attack_sprites.empty()
+		self.attackable_sprites.empty()
 		
 
 		boundary = import_csv_layout('resource/map/boundary.csv')
@@ -145,18 +149,10 @@ class Level:
 								surf
 							)
 						if style == 'entities':
-							if col == '390':
-								monster_name = 'bamboo'
+							if col == 'm':
+								monster_name = choice(normal_monster_name)
 								monster_type = 'normal'
-							elif col == '391':
-								monster_name = 'spirit'
-								monster_type = 'normal'
-							elif col == '392':
-								monster_name = 'raccoon'
-								monster_type = 'unique'
-							elif col == '393':
-								monster_name = 'squid'
-								monster_type = 'normal'
+								
 							Enemy(
 								monster_name, 
 								monster_type,
@@ -257,7 +253,7 @@ class Level:
 		list_to_csv(grass_list, 'grass')
 		object_list = make_object_list(self.map_size, [0, 1, 2, 3, 4], self.object_count, boundary_list, grass_list)
 		list_to_csv(object_list, 'object')
-		entity_list = make_entity_list(self.map_size, [390, 391, 393], self.entity_count, boundary_list, grass_list, object_list)
+		entity_list = make_entity_list(self.map_size, self.entity_count, boundary_list, grass_list, object_list)
 		list_to_csv(entity_list, 'entities')	
 		self.monster_count = self.entity_count
 		print("맵 생성 완료")
@@ -307,9 +303,44 @@ class Level:
 		
 	
 	def spawn_boss(self):
-		if self.round % 1 == 0: # 5라운드마다 보스 소환
+		if self.round % 10 == 0: # 10라운드마다 보스 2마리 소환
+			monster_name1 = choice(boss_monster_name)
+			monster_name2 = choice(boss_monster_name)
 			Enemy(
-				"raccoon", 
+				monster_name1[0], 
+				"unique",
+				self.round,
+				self.map_size,
+				(((self.map_size - 1) // 2) * TILESIZE, ((self.map_size - 1) // 2) * TILESIZE), 
+				[self.visible_sprites, self.attackable_sprites], 
+				self.obstacle_sprites,
+				self.damage_player,
+				self.trigger_death_particles,
+				self.monster_count_down,
+				self.drop_item,
+				self.add_exp,
+				self.drop_weapon
+			)
+			Enemy(
+				monster_name2[1], 
+				"unique",
+				self.round,
+				self.map_size,
+				(((self.map_size - 1) // 2) * TILESIZE, ((self.map_size - 1) // 2) * TILESIZE), 
+				[self.visible_sprites, self.attackable_sprites], 
+				self.obstacle_sprites,
+				self.damage_player,
+				self.trigger_death_particles,
+				self.monster_count_down,
+				self.drop_item,
+				self.add_exp,
+				self.drop_weapon
+			)
+			self.monster_count += 2
+		elif self.round % 2 == 0:
+			monster_name = choice(boss_monster_name)
+			Enemy(
+				monster_name, 
 				"unique",
 				self.round,
 				self.map_size,
@@ -324,6 +355,17 @@ class Level:
 				self.drop_weapon
 			)
 			self.monster_count += 1
+
+	def check_game_over(self):
+		game_over = False
+		if self.player.health <= 0:
+			game_over = True
+			self.ui.draw_game_over()
+			time.sleep(3)
+			return game_over
+		return game_over
+
+
 
 	def run(self):
 		# 배경 그리기
@@ -353,6 +395,7 @@ class YSortCameraGroup(pygame.sprite.Group):
 		self.half_width = self.display_surface.get_size()[0] // 2
 		self.half_height = self.display_surface.get_size()[1] // 2
 		self.offset = pygame.math.Vector2()
+		self.offset2 = pygame.math.Vector2()
 		self.background_img = pygame.image.load("resource/map/test.png")
 		self.background_rect = self.background_img.get_rect()
 
@@ -372,4 +415,7 @@ class YSortCameraGroup(pygame.sprite.Group):
 	def enemy_update(self, player: Player):
 		enemy_sprites = [sprite for sprite in self.sprites() if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy']
 		for enemy in enemy_sprites:
-			enemy.enemy_update(player)
+			self.offset2.x = player.rect.centerx - self.half_width
+			self.offset2.y = player.rect.centery - self.half_height
+			offset_pos = enemy.rect.topleft - self.offset2
+			enemy.enemy_update(player, offset_pos)
