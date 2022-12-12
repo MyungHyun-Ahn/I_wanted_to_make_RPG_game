@@ -351,7 +351,7 @@ class Level:
 				self.drop_weapon
 			)
 			self.monster_count += 2
-		elif self.round % 1 == 0:
+		elif self.round % 5 == 0:
 			monster_name = choice(boss_monster_name)
 			print(monster_name)
 			Enemy(
