@@ -4,11 +4,12 @@ from support import import_folder
 from debug import debug
 from entity import Entity
 from typing import Callable
-
+from item import Item
+from random import randint
 # pygame Sprite 클래스 상속
 class Player(Entity):
     # 생성자
-    def __init__(self, pos: tuple, groups: list, obstacle_sprites: pygame.sprite.Group, create_attack: Callable, destroy_attack: Callable, create_magic: Callable) -> None:
+    def __init__(self, pos: tuple, map_size: int, groups: list, obstacle_sprites: pygame.sprite.Group, item_sprites: pygame.sprite.Group, create_attack: Callable, destroy_attack: Callable, create_magic: Callable) -> None:
         # 부모 클래스의 생성자를 먼저 로드
         super().__init__(groups)
         # .convert_alpha() : blit의 속도를 향상시킴
@@ -38,41 +39,63 @@ class Player(Entity):
         # 장애물 받아오기
         self.obstacle_sprites = obstacle_sprites
 
+        # item
+        self.item_sprites = item_sprites
+
 		# weapon
         self.create_attack = create_attack
         self.destroy_attack = destroy_attack
         self.weapon_index = 0
         self.weapon = list(weapon_data.keys())[self.weapon_index]
-        self.can_switch_weapon = True
-        self.weapon_switch_time = None 
-        self.switch_duration_cooldown = 200
 
         # magic
         self.create_magic = create_magic
         self.magic_index = 0
-        self.magic = list(magic_data.keys())[self.magic_index]
-        self.can_switch_magic = True
-        self.magic_switch_magic = True
-        self.magic_switch_time = None
+        self.magic = list(magic_data.keys())[0]
 
         # stats
         self.stats = {
             'health' : 100,
             'energy' : 60,
             'attack' : 10,
-            'magic'  : 4,
+            'magic'  : 5,
             'speed'  : 5
         }
 
-        self.health = self.stats['health'] * 0.5
-        self.energy = self.stats['energy'] * 0.8
-        self.exp = 123
-        self.speed = self.stats['speed']
+        self.max_stats = {
+            'health' : 99999,
+            'energy' : 99999,
+            'attack' : 500000,
+            'magic'  : 500000,
+            'speed'  : 20
+        }
+
+        self.upgrade_rate = {
+            'health' : 10,
+            'energy' : 10,
+            'attack' : 5,
+            'magic'  : 3,
+            'speed'  : 1
+        }
+
+        self.health = self.stats['health']
+        self.energy = self.stats['energy']
+        self.speed  = self.stats['speed']
+        self.level = 1
+        self.exp    = 0
+        self.level_up_exp = 500
+        self.stat_point = 0
 
         # damage timer
         self.vulnerable = True
         self.hurt_time = None
         self.invulnerability_duration = 500
+
+        self.map_size = map_size
+
+        # import a sound
+        self.weapon_attack_sound = pygame.mixer.Sound('resource/audio/sword.wav')
+        self.weapon_attack_sound.set_volume(0.4)
 
     def import_player_assets(self):
         charater_path = 'resource/graphics/player/'
@@ -119,45 +142,52 @@ class Player(Entity):
                 self.direction.x = 0
 
             # attack input
-            if keys[pygame.K_SPACE]:
+            if keys[pygame.K_a]:
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
                 self.create_attack()
+                self.weapon_attack_sound.play()
             
             # magic input
-            if keys[pygame.K_LCTRL]:
+            if keys[pygame.K_q]:
+                self.magic = list(magic_data.keys())[0]
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
-                style = list(magic_data.keys())[self.magic_index]
-                strength = list(magic_data.values())[self.magic_index]['strength'] + self.stats['magic']
-                cost = list(magic_data.values())[self.magic_index]['cost']
+                style = list(magic_data.keys())[0]
+                strength = list(magic_data.values())[0]['strength'] + self.stats['magic']
+                cost = list(magic_data.values())[0]['cost']
                 self.create_magic(style, strength, cost)
 
-            if keys[pygame.K_q] and self.can_switch_weapon:
-                self.can_switch_weapon = False
-                self.weapon_switch_time = pygame.time.get_ticks()
+            if keys[pygame.K_w]:
+                self.magic = list(magic_data.keys())[1]
+                self.attacking = True
+                self.attack_time = pygame.time.get_ticks()
+                style = list(magic_data.keys())[1]
+                strength = list(magic_data.values())[1]['strength'] + self.stats['magic']
+                cost = list(magic_data.values())[1]['cost']
+                self.create_magic(style, strength, cost)
+            
+            if keys[pygame.K_e]:
+                self.magic = list(magic_data.keys())[2]
+                self.attacking = True
+                self.attack_time = pygame.time.get_ticks()
+                style = list(magic_data.keys())[2]
+                strength = list(magic_data.values())[2]['strength'] + self.stats['magic']
+                cost = list(magic_data.values())[2]['cost']
+                self.create_magic(style, strength, cost)
 
-                if self.weapon_index < len(list(weapon_data.keys())) - 1:
-                    self.weapon_index += 1
-                else:
-                    self.weapon_index = 0
-
-                self.weapon = list(weapon_data.keys())[self.weapon_index]
-
-            if keys[pygame.K_e] and self.can_switch_magic:
-                self.can_switch_magic = False
-                self.magic_switch_time = pygame.time.get_ticks()
-
-                if self.magic_index < len(list(magic_data.keys())) - 1:
-                    self.magic_index += 1
-                else:
-                    self.magic_index = 0
-
-                self.magic = list(magic_data.keys())[self.magic_index]
+            if keys[pygame.K_r]:
+                self.magic = list(magic_data.keys())[3]
+                self.attacking = True
+                self.attack_time = pygame.time.get_ticks()
+                style = list(magic_data.keys())[3]
+                strength = list(magic_data.values())[3]['strength'] + self.stats['magic']
+                cost = list(magic_data.values())[3]['cost']
+                self.create_magic(style, strength, cost)
+        
 
     def get_status(self):
         # idle status
-        debug("status : {}".format(self.status), x=250, y=10)
         if self.direction.x == 0 and self.direction.y == 0:
             if not 'idle' in self.status and not 'attack' in self.status:
                 self.status = self.status + '_idle'
@@ -178,14 +208,12 @@ class Player(Entity):
         if self.direction.magnitude() != 0: # magitude : 벡터의 크기
             self.direction = self.direction.normalize()
 
-            # self.direction += self.direction.x * speed
-            # self.collision('horizontal')
-            # self.rect.y += self.direction.y * speed
-            # self.collision('vertical')
         self.hitbox.x += self.direction.x * speed
         self.collision('horizontal')
+        self.item('horizontal')
         self.hitbox.y += self.direction.y * speed
         self.collision('vertical')
+        self.item('vertical')
         # self.rect.center += self.direction * speed # 정규화가 필요함, 벡터의 길이를 1로 만드는 것
         self.rect.center = self.hitbox.center
 
@@ -208,6 +236,26 @@ class Player(Entity):
                     if self.direction.y < 0:
                         self.hitbox.top = sprite.hitbox.bottom
 
+    def item(self, direction: pygame.math.Vector2) -> None:
+        for item in self.item_sprites:
+            if direction == 'horizontal':
+                if item.rect.colliderect(self.hitbox):
+                    if self.direction.y > 0:
+                        item.use_item()
+                    if self.direction.y < 0:
+                        item.use_item()
+
+        for item in self.item_sprites:
+            if direction == 'vertical':
+                if item.rect.colliderect(self.hitbox):
+                    if self.direction.y > 0:
+                        item.use_item()
+                    if self.direction.y < 0:
+                        item.use_item()
+    
+    def change_weapon(self, weapon_index):
+        self.weapon = list(weapon_data.keys())[weapon_index]
+
     def cooldowns(self):
         current_time = pygame.time.get_ticks()
 
@@ -215,14 +263,6 @@ class Player(Entity):
             if current_time - self.attack_time >= self.attack_cooldown:
                 self.attacking = False
                 self.destroy_attack()
-
-        if not self.can_switch_weapon:
-            if current_time - self.weapon_switch_time >= self.switch_duration_cooldown:
-                self.can_switch_weapon = True
-
-        if not self.can_switch_magic:
-            if current_time - self.magic_switch_time >= self.switch_duration_cooldown:
-                self.can_switch_magic = True
 
         if not self.vulnerable:
             if current_time - self.hurt_time >= self.invulnerability_duration:
@@ -257,16 +297,39 @@ class Player(Entity):
         spell_damage = magic_data[self.magic]['strength']
         return base_damage + spell_damage
 
+    def get_value_by_index(self, index):
+        return list(self.stats.values())[index]
+
+
     def energy_recovery(self):
         if self.energy < self.stats['energy']:
-            self.energy += 0.01 * self.stats['magic']
+            self.energy += 0.0005 * self.stats['energy']
         else:
             self.energy = self.stats['energy']
+    
+    def goto_xy(self, xy: tuple, groups: list):
+        super().__init__(groups)
+        self.hitbox.x = xy[0]
+        self.hitbox.y = xy[1]
+
+    
+    def set_map_size(self, map_size: int) -> None:
+        self.map_size = map_size
+
+    def level_up(self):
+        if self.exp >= self.level_up_exp:
+            self.exp -= self.level_up_exp
+            self.level_up_exp *= 1.1
+            self.level_up_exp = int(self.level_up_exp)
+            self.stat_point += 3
+            self.level += 1
 
     def update(self):
         self.input()
         self.cooldowns()
         self.get_status()
         self.animate()
+        self.out_map()
+        self.level_up()
         self.move(self.speed)
         self.energy_recovery()

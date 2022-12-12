@@ -9,6 +9,8 @@ class AnimationPlayer:
 			'flame': import_folder('resource/graphics/particles/flame/frames'),
 			'aura': import_folder('resource/graphics/particles/aura'),
 			'heal': import_folder('resource/graphics/particles/heal/frames'),
+			'p_leaf_attack': import_folder('resource/graphics/particles/p_leaf_attack/frames'),
+			'p_thunder': import_folder('resource/graphics/particles/p_thunder/frames'),
 			
 			# attacks 
 			'claw': import_folder('resource/graphics/particles/claw'),
@@ -16,12 +18,29 @@ class AnimationPlayer:
 			'sparkle': import_folder('resource/graphics/particles/sparkle'),
 			'leaf_attack': import_folder('resource/graphics/particles/leaf_attack'),
 			'thunder': import_folder('resource/graphics/particles/thunder'),
+			'smoke': import_folder('resource/graphics/particles/smoke'),
+			'flam': import_folder('resource/graphics/particles/flam'),
+			'rock': import_folder('resource/graphics/particles/rock'),
+			'smoke_orange': import_folder('resource/graphics/particles/smoke_orange'),
+			'cut': import_folder('resource/graphics/particles/cut'),
 
-			# monster deaths
+			
+
+			# monster deaths redraccoon
 			'squid': import_folder('resource/graphics/particles/smoke_orange'),
 			'raccoon': import_folder('resource/graphics/particles/raccoon'),
+			'redraccoon': import_folder('resource/graphics/particles/redraccoon'),
 			'spirit': import_folder('resource/graphics/particles/nova'),
 			'bamboo': import_folder('resource/graphics/particles/bamboo'),
+			'giantflam': import_folder('resource/graphics/particles/giantflam'),
+			'frog': import_folder('resource/graphics/particles/frog'),
+			'cyclope': import_folder('resource/graphics/particles/cyclope'),
+			'greencyclope': import_folder('resource/graphics/particles/greencyclope'),
+			'bluebutterfly': import_folder('resource/graphics/particles/bluebutterfly'),
+			'minidragon': import_folder('resource/graphics/particles/minidragon'),
+			'skull': import_folder('resource/graphics/particles/skull'),
+			'demoncyclope': import_folder('resource/graphics/particles/demoncyclope'),
+
 			
 			# leafs 
 			'leaf': (

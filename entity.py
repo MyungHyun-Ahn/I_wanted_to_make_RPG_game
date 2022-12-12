@@ -1,5 +1,7 @@
 import pygame
 from math import sin
+from random import randint
+from settings import *
 
 class Entity(pygame.sprite.Sprite):
     def __init__(self, groups: list) -> None:
@@ -34,6 +36,29 @@ class Entity(pygame.sprite.Sprite):
                         self.hitbox.bottom = sprite.hitbox.top
                     if self.direction.y < 0:
                         self.hitbox.top = sprite.hitbox.bottom
+
+    def out_map(self):
+        x_pos = randint(TILESIZE, (self.map_size - 2) * TILESIZE)
+        y_pos = randint(TILESIZE, (self.map_size - 2) * TILESIZE)
+
+        if self.hitbox.x < 0 or self.hitbox.y < 0:
+            self.hitbox.x = x_pos
+            self.hitbox.y = y_pos
+            print("1")
+        elif self.hitbox.x < 0 or self.hitbox.y > self.map_size * TILESIZE:
+            self.hitbox.x = x_pos
+            self.hitbox.y = y_pos
+            print("2")
+        elif self.hitbox.x > self.map_size * TILESIZE or self.hitbox.y < 0:
+            self.hitbox.x = x_pos
+            self.hitbox.y = y_pos
+            print("3")
+        elif self.hitbox.x > self.map_size * TILESIZE or self.hitbox.y > self.map_size  * TILESIZE:
+            self.hitbox.x = x_pos
+            self.hitbox.y = y_pos
+            print("4")
+        else:
+            pass
 
     def wave_value(self):
         value = sin(pygame.time.get_ticks())
