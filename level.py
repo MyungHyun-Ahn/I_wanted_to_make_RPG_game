@@ -75,14 +75,6 @@ class Level:
 
 		self.map_upgrade()
 		self.reset_map()
-		
-		# 스프라이트 그룹을 초기화
-		self.visible_sprites.empty()
-		self.obstacle_sprites.empty()
-		self.item_sprites.empty()
-		self.attack_sprites.empty()
-		self.attackable_sprites.empty()
-		
 
 		boundary = import_csv_layout('resource/map/boundary.csv')
 		grass = import_csv_layout('resource/map/grass.csv')
@@ -182,10 +174,10 @@ class Level:
 							)
 
 	def map_upgrade(self):
-		self.map_size = MAPSIZE + (self.round // 5) * 5 # 5라운드마다 map_size 5 씩 증가
-		self.grass_count = GRASSCOUNT + (self.round // 5) * 5 # 5라운드마다 grass 5 씩 증가
-		self.object_count = OBJECTCOUNT + (self.round // 10) * 5 # 10라운드마다 오브젝트 5개씩 증가
-		self.entity_count = ENTITYCOUNT + (self.round // 3) * 2 # 3라운드마다 몬스터 3마리씩 증가
+		self.map_size = MAPSIZE + (self.round // 5) * 5             # 5라운드마다 map_size 5 씩 증가
+		self.grass_count = GRASSCOUNT + (self.round // 5) * 5       # 5라운드마다 grass 5 씩 증가
+		self.object_count = OBJECTCOUNT + (self.round // 10) * 5    # 10라운드마다 오브젝트 5개씩 증가
+		self.entity_count = ENTITYCOUNT + (self.round // 3) * 2     # 3라운드마다 몬스터 3마리씩 증가
 
 
 	def create_attack(self):
@@ -256,8 +248,12 @@ class Level:
 			self.round_ticks += 1
 
 	def reset_map(self):
-		# self.visible_sprites = YSortCameraGroup() # 커스텀 그룹
-		# self.obstacle_sprites = pygame.sprite.Group() # 플레이어가 충돌할 수 있는 스프라이트 그룹
+		# 스프라이트 그룹을 초기화
+		self.visible_sprites.empty()
+		self.obstacle_sprites.empty()
+		self.item_sprites.empty()
+		self.attack_sprites.empty()
+		self.attackable_sprites.empty()
 
 		boundary_list = make_boundary_list(self.map_size)
 		list_to_csv(boundary_list, 'boundary')
@@ -268,7 +264,6 @@ class Level:
 		entity_list = make_entity_list(self.map_size, self.entity_count, boundary_list, grass_list, object_list)
 		list_to_csv(entity_list, 'entities')	
 		self.monster_count = self.entity_count
-		print("맵 생성 완료")
 		
 	def check_remain_monster(self):
 		return self.monster_count

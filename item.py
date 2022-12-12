@@ -42,7 +42,6 @@ class Item(pygame.sprite.Sprite):
                     self.player.health = self.player.stats['health']
                 self.animation_player.create_particles('aura', self.player.rect.center, self.groups2)
                 
-            
             if item_data[self.item_name]['type'] == 'mp':
                 self.player.energy += int((self.player.stats['energy'] / 100) * item_data[self.item_name]['recovery'])
                 if self.player.energy > self.player.stats['energy']:
