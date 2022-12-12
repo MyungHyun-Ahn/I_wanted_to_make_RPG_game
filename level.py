@@ -399,9 +399,9 @@ class Level:
 		
 		self.display_round()
 		if self.player.health <= 0:
-			# self.ui.draw_game_over()
+			self.ui.draw_game_over()
 			self.game_over_sound.play(2)
-		# self.check_game_over()
+		self.check_game_over()
 		self.update_stage()
 		
 

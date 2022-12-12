@@ -154,6 +154,8 @@ class UpgradeMenu:
             player.stats[upgrade_attribute] += player.upgrade_rate[upgrade_attribute]
             if upgrade_attribute == 'health':
                 player.health += player.upgrade_rate[upgrade_attribute]
+            elif upgrade_attribute == 'energy':
+                player.energy += player.upgrade_rate[upgrade_attribute]
         else:
             self.sounds['failure'].play() # 실패시 재생
 

@@ -44,8 +44,9 @@ def main():
 import pygame_menu
 
 screen = pygame.display.set_mode((WIDTH, HEIGTH))
+clock = pygame.time.Clock()
 background_music = pygame.mixer.Sound('resource/audio/background/main.ogg')
-background_music.set_volume(0.5)
+background_music.set_volume(0)
 game_difficulty = 1
 
 def set_difficulty(value, difficulty):
@@ -69,7 +70,9 @@ def show_start_menu():
                       onchange=set_difficulty)
     menu.add.button("게임 시작", start_the_game)
     menu.add.button("게임 종료", pygame_menu.events.EXIT)
+
     menu.mainloop(screen)
+
 
 def show_restart_menu(message):
     hanfont = pygame.font.SysFont("malgungothic", 30)
