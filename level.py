@@ -351,10 +351,11 @@ class Level:
 				self.drop_weapon
 			)
 			self.monster_count += 2
-		elif self.round % 2 == 0:
+		elif self.round % 1 == 0:
 			monster_name = choice(boss_monster_name)
+			print(monster_name)
 			Enemy(
-				'frog', 
+				monster_name, 
 				"unique",
 				self.game_difficulty,
 				self.round,
@@ -398,9 +399,9 @@ class Level:
 		
 		self.display_round()
 		if self.player.health <= 0:
-			self.ui.draw_game_over()
+			# self.ui.draw_game_over()
 			self.game_over_sound.play(2)
-		self.check_game_over()
+		# self.check_game_over()
 		self.update_stage()
 		
 
