@@ -45,15 +45,15 @@ class Entity(pygame.sprite.Sprite):
             self.hitbox.x = x_pos
             self.hitbox.y = y_pos
             print("1")
-        elif self.hitbox.x < 0 or self.hitbox.y > self.map_size * TILESIZE:
+        elif self.hitbox.x < 0 or self.hitbox.y > (self.map_size - 1) * TILESIZE:
             self.hitbox.x = x_pos
             self.hitbox.y = y_pos
             print("2")
-        elif self.hitbox.x > self.map_size * TILESIZE or self.hitbox.y < 0:
+        elif self.hitbox.x > (self.map_size - 1) * TILESIZE or self.hitbox.y < 0:
             self.hitbox.x = x_pos
             self.hitbox.y = y_pos
             print("3")
-        elif self.hitbox.x > self.map_size * TILESIZE or self.hitbox.y > self.map_size  * TILESIZE:
+        elif self.hitbox.x > (self.map_size - 1) * TILESIZE or self.hitbox.y > (self.map_size - 1)  * TILESIZE:
             self.hitbox.x = x_pos
             self.hitbox.y = y_pos
             print("4")
